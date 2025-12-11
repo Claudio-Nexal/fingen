@@ -1,0 +1,97 @@
+<style>
+  /* Colore dei testi quando il menu è aperto */
+  .navbar.navbar-is-open a,
+  .navbar.navbar-is-open .nav-link,
+  .navbar.navbar-is-open .w-nav-link,
+  .navbar.navbar-is-open .w-dropdown-link {
+    color: #30344F !important;
+    transition: color .3s;
+  }
+
+  .navbar .nav-link,
+  .navbar .w-nav-link,
+  .navbar .w-dropdown-link {
+    transition: color .3s; /* transizione anche in chiusura */
+  }
+
+  /* Altri link */
+  .navbar.navbar-is-open .link-3,
+  .navbar.navbar-is-open .link-4 {
+    color: #30344F !important;
+  }
+  
+  .menu-button-image {
+    width: 29px;
+    height: 18px;
+  }
+  
+  .w-nav-overlay{
+  	margin-top: -100px
+  }
+  
+  body.no-scroll {
+    overflow: hidden !important;
+    height: 100vh;
+    touch-action: none;
+  }
+
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style>
+/* ANIMAZIONI DEI BOTTONI */
+
+/* Testo */
+.text-block-2 {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Bottoni principali: contact-, work-, form- */
+.contact-button,
+.work-button,
+.form-button {
+  outline: 1px solid #f3f3f3;
+  border-radius: 50px;            /* ← fondamentale per forma a pillola */
+  display: inline-block;          /* ← NO flex qui! */
+  position: relative;
+  overflow: visible;
+  transform-origin: center center;
+  padding: 15px 25px;             /* uniformiamo padding */
+  box-sizing: border-box;         /* evita glitch con outline */
+}
+
+/* Bordo esterno animato */
+.contact-button::after,
+.work-button::after,
+.form-button::after {
+  content: "";
+  position: absolute;
+
+  /* distanza leggera */
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+
+  border: 1px solid #f3f3f3;
+  border-radius: 50px;
+
+  transform: scale(var(--after-scale, 0.8));
+  opacity: var(--after-opacity, 0);
+  transform-origin: center;
+  pointer-events: none;
+}
+</style>
