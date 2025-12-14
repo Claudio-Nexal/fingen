@@ -109,3 +109,89 @@
   will-change: opacity, clip-path;
 }
 </style>
+
+
+
+
+
+
+
+
+
+
+<style>
+/* ANIMAZIONI CTA TESTO + FRECCIA */
+
+.text-link {
+  position: relative;
+}
+
+.text-link-text {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 5px; /* Distanza tra il testo e l'underline */
+}
+
+/* Prima underline (di base è visibile) */
+.text-link-text::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%; /* L'underline di base è a 100% */
+  height: 2px;
+  background-color: white; /* Colore dell'underline */
+  transform-origin: bottom right;
+  transition: transform 0.3s ease-out;
+  transform: scaleX(1); /* L'underline di base è visibile */
+}
+
+/* Seconda underline (inizialmente nascosta) */
+.text-link-text::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: white;
+  transform-origin: bottom left;
+  transform: scaleX(0); /* Il secondo underline è nascosto inizialmente */
+  transition: transform 0.3s ease-out 0.3s; /* Ritardo di 0.3s */
+}
+
+/* Al mouse entra (mouseenter) */
+.text-link.hovered .text-link-text::before {
+  transform: scaleX(0); /* Il primo underline si riduce a 0 */
+}
+
+.text-link.hovered .text-link-text::after {
+  transform: scaleX(1); /* Il secondo underline cresce a 100% */
+}
+
+/* Al mouse esce (mouseleave) */
+.text-link.hover-leave .text-link-text::after {
+  transform: scaleX(0); /* Il secondo underline si riduce a 0 */
+    transform-origin: bottom left;
+  transition: transform 0.3s ease-out;
+}
+
+.text-link.hover-leave .text-link-text::before {
+  transform: scaleX(1); /* Il primo underline torna a 100% */
+  transition: transform 0.3s ease-out 0.3s; 
+    transform-origin: bottom right;
+}
+
+
+/* Aggiungiamo la rotazione dell'immagine al mouse enter */
+.text-link:hover img {
+  transform: rotate(-45deg); /* Ruota l'immagine di -45 gradi */
+  transition: transform 0.3s ease-out; /* Durata della transizione */
+}
+
+/* Al mouse esce (mouseleave) l'immagine torna normale */
+.text-link:not(:hover) img {
+  transform: rotate(0deg); /* Torna all'angolo originale (0 gradi) */
+  transition: transform 0.3s ease-out; /* Durata della transizione */
+}
+</style>
