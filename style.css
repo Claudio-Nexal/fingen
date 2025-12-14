@@ -160,6 +160,12 @@
   transition: transform 0.3s ease-out 0.3s; /* Ritardo di 0.3s */
 }
 
+/* override se ha anche .text-blue */
+.text-link-text.text-blue::before,
+.text-link-text.text-blue::after {
+  background-color: #30344F;
+}
+
 /* Al mouse entra (mouseenter) */
 .text-link.hovered .text-link-text::before {
   transform: scaleX(0); /* Il primo underline si riduce a 0 */
