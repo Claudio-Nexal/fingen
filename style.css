@@ -291,7 +291,7 @@
 }
 
 .w-dropdown-list.w--open{
-  display: block;
+  display: block !important;
 }
 
 </style>
