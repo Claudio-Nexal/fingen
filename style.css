@@ -290,4 +290,8 @@
   opacity: 0.25;
 }
 
+.w-dropdown-list.w--open{
+  display: block;
+}
+
 </style>
