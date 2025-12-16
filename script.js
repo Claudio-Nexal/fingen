@@ -508,7 +508,7 @@ if (!isFullwidth) {
 
       if (!raw) return;
 
-      target.innerHTML = <span class="title-text">${raw}</span>;
+      target.innerHTML = '<span class="title-text">' + raw + '</span>';
       const textEl = target.querySelector(".title-text");
       if (!textEl) return;
 
