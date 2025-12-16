@@ -321,12 +321,12 @@ body.no-scroll {
     overflow: hidden;
   
     /* extra area sopra/sotto per evitare clipping */
-    padding-top: 0.12em;
-    padding-bottom: 0.18em;
+    padding-top: 0.30em;
+    padding-bottom: 0.30em;
   
     /* compenso per non cambiare layout */
-    margin-top: -0.12em;
-    margin-bottom: -0.18em;
+    margin-top: -0.30em;
+    margin-bottom: -0.1em;
   }
   
   .title-line-inner{
