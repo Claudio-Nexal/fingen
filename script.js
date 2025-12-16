@@ -479,6 +479,30 @@ if (!isFullwidth) {
 });
 
 
+// effetto parallasse per le card
+window.addEventListener("load", () => {
+  const cards = document.querySelectorAll(".card");
+
+  function update() {
+    const vh = window.innerHeight;
+
+    cards.forEach(card => {
+      const img = card.querySelector(":scope > img, :scope > picture > img");
+      if (!img) return;
+
+      const r = card.getBoundingClientRect();
+      const progress = (r.top + r.height) / (vh + r.height); // 0..1 circa
+      const y = (0.5 - progress) * 20; // intensità (20 = 20px)
+
+      img.style.transform = `translate3d(0, ${y}px, 0) scale(1.12)`;
+      img.style.willChange = "transform";
+    });
+  }
+
+  update();
+  window.addEventListener("scroll", update, { passive: true });
+  window.addEventListener("resize", update);
+});
 
 
 
