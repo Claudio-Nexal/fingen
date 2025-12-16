@@ -522,9 +522,9 @@ if (!isFullwidth) {
       // 3) animazione riga per riga
       const lines = target.querySelectorAll(".title-line-inner");
       gsap.from(lines, {
-        yPercent: 100,
-        duration: 1.2,
-        ease: "power3.inOut",
+        yPercent: 120,
+        duration: 1.6,
+        ease: "power2.inOut",
         stagger: 0.12,
         scrollTrigger: {
           trigger: wrap,
