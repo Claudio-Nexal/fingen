@@ -291,3 +291,70 @@
 }
 
 </style>
+
+
+
+
+
+<style>
+  /* Animazione testi */
+  
+  /* Applica solo su desktop */
+  @media (min-width: 768px) {
+    .pagetitle-animation{
+      overflow: hidden;
+    }
+    
+    .title-animation{
+      overflow: hidden;
+    }
+     
+    .title-line {
+      display: block;
+      overflow: hidden;
+    }
+
+    .title-line-inner {
+      display: block;
+      will-change: transform;
+    }
+
+    .page-title .char { display: inline-block; }
+  }
+
+  /* Mobile: reset (nel caso ci siano regole globali che interferiscono) */
+  @media (max-width: 767px) {
+    .pagetitle-animation{
+      overflow: visible;
+    }
+  }
+  
+
+
+</style>
+
+
+<style>
+  /* immagini in parallasse */
+  .parallax-image{
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* se non hai un'altezza già definita via Webflow, usa aspect-ratio */
+  .parallax-image{
+    /* esempio: */
+    aspect-ratio: 2.39/1; /* oppure 4/3, ecc. */
+  }
+
+  /* immagine assoluta: non dipende più da height:100% ambiguo */
+  .parallax-image > img,
+  .parallax-image picture > img{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+</style>
