@@ -1,41 +1,39 @@
-<style>
-  /* Colore dei testi quando il menu è aperto */
-  .navbar.navbar-is-open a,
-  .navbar.navbar-is-open .nav-link,
-  .navbar.navbar-is-open .w-nav-link,
-  .navbar.navbar-is-open .w-dropdown-link {
-    color: #30344F !important;
-    transition: color .3s;
-  }
 
-  .navbar .nav-link,
-  .navbar .w-nav-link,
-  .navbar .w-dropdown-link {
-    transition: color .3s; /* transizione anche in chiusura */
-  }
+/* Colore dei testi quando il menu è aperto */
+.navbar.navbar-is-open a,
+.navbar.navbar-is-open .nav-link,
+.navbar.navbar-is-open .w-nav-link,
+.navbar.navbar-is-open .w-dropdown-link {
+  color: #30344F !important;
+  transition: color .3s;
+}
 
-  /* Altri link */
-  .navbar.navbar-is-open .link-3,
-  .navbar.navbar-is-open .link-4 {
-    color: #30344F !important;
-  }
-  
-  .menu-button-image {
-    width: 29px;
-    height: 18px;
-  }
-  
-  .w-nav-overlay{
-  	margin-top: -100px
-  }
-  
-  body.no-scroll {
-    overflow: hidden !important;
-    height: 100vh;
-    touch-action: none;
-  }
+.navbar .nav-link,
+.navbar .w-nav-link,
+.navbar .w-dropdown-link {
+  transition: color .3s; /* transizione anche in chiusura */
+}
 
-</style>
+/* Altri link */
+.navbar.navbar-is-open .link-3,
+.navbar.navbar-is-open .link-4 {
+  color: #30344F !important;
+}
+
+.menu-button-image {
+  width: 29px;
+  height: 18px;
+}
+
+.w-nav-overlay{
+  margin-top: -100px
+}
+
+body.no-scroll {
+  overflow: hidden !important;
+  height: 100vh;
+  touch-action: none;
+}
 
 
 
@@ -49,7 +47,9 @@
 
 
 
-<style>
+
+
+
 /* ANIMAZIONI DEI BOTTONI */
 
 /* Testo */
@@ -94,10 +94,10 @@
   transform-origin: center;
   pointer-events: none;
 }
-</style>
 
 
-<style>
+
+
 .footer-wrapper {
   overflow: clip; /* oppure hidden */
   position: relative;
@@ -108,7 +108,6 @@
   clip-path: inset(100% 0% 0% 0%); /* totalmente nascosto dall'alto */
   will-change: opacity, clip-path;
 }
-</style>
 
 
 
@@ -119,7 +118,8 @@
 
 
 
-<style>
+
+
 /* ANIMAZIONI CTA TESTO + FRECCIA */
 
 .text-link {
@@ -200,7 +200,6 @@
   transform: rotate(0deg); /* Torna all'angolo originale (0 gradi) */
   transition: transform 0.3s ease-out; /* Durata della transizione */
 }
-</style>
 
 
 
@@ -209,7 +208,8 @@
 
 
 
-<style>
+
+
 /* Style del menu e dell'header */
 
 .content-container {
@@ -296,48 +296,48 @@
   opacity: 0.25;
 }
 
-</style>
 
 
 
 
 
-<style>
-  /* Animazione testi */
-  
-  /* Applica solo su desktop */
-  @media (min-width: 768px) {
-    .pagetitle-animation{
-      overflow: hidden;
-    }
-    
-    .title-animation{
-      overflow: hidden;
-    }
-     
-    .title-line {
-      display: block;
-      overflow: hidden;
-    }
 
-    .title-line-inner {
-      display: block;
-      will-change: transform;
-    }
 
-    .page-title .char { display: inline-block; }
-  }
+/* Animazione testi */
 
-  /* Mobile: reset (nel caso ci siano regole globali che interferiscono) */
-  @media (max-width: 767px) {
-    .pagetitle-animation{
-      overflow: visible;
-    }
+/* Applica solo su desktop */
+@media (min-width: 768px) {
+  .pagetitle-animation{
+    overflow: hidden;
   }
   
+  .title-animation{
+    overflow: hidden;
+  }
+   
+  .title-line {
+    display: block;
+    overflow: hidden;
+  }
+
+  .title-line-inner {
+    display: block;
+    will-change: transform;
+  }
+
+  .page-title .char { display: inline-block; }
+}
+
+/* Mobile: reset (nel caso ci siano regole globali che interferiscono) */
+@media (max-width: 767px) {
+  .pagetitle-animation{
+    overflow: visible;
+  }
+}
+  
 
 
-</style>
+
 
 
 
