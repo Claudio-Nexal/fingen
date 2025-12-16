@@ -523,7 +523,7 @@ if (!isFullwidth) {
       const lines = target.querySelectorAll(".title-line-inner");
       gsap.from(lines, {
         yPercent: 120,
-        duration: 1.6,
+        duration: 1.3,
         ease: "power2.inOut",
         stagger: 0.12,
         scrollTrigger: {
