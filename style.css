@@ -234,6 +234,10 @@
   will-change: transform, opacity;
 }
 
+.menu-toggle .menu-close{
+  width: 40%;
+}
+
 .menu-overlay {
   position: fixed;
   top: 0;
