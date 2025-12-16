@@ -522,14 +522,14 @@ if (!isFullwidth) {
       // 3) animazione riga per riga
       const lines = target.querySelectorAll(".title-line-inner");
       gsap.from(lines, {
-        yPercent: 120,
-        duration: 0.8,
+        yPercent: 100,
+        duration: 1.2,
         ease: "power3.inOut",
         stagger: 0.12,
         scrollTrigger: {
           trigger: wrap,
           start: "top 80%",
-          toggleActions: "play none none reverse"
+          toggleActions: "play none none"
         }
       });
     });
