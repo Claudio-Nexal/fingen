@@ -315,18 +315,27 @@ body.no-scroll {
     overflow: hidden;
   }
    
-  .title-line {
+  /* wrapper di ogni riga: maschera sempre attiva, ma non taglia il font */
+  .title-line{
     display: block;
     overflow: hidden;
+  
+    /* extra area sopra/sotto per evitare clipping */
+    padding-top: 0.12em;
+    padding-bottom: 0.18em;
+  
+    /* compenso per non cambiare layout */
+    margin-top: -0.12em;
+    margin-bottom: -0.18em;
   }
-
-  .title-line-inner {
-    display: block;
+  
+  .title-line-inner{
+    display: inline-block;
     will-change: transform;
   }
-
-  .page-title .char { display: inline-block; }
-}
+  
+    .page-title .char { display: inline-block; }
+  }
 
 /* Mobile: reset (nel caso ci siano regole globali che interferiscono) */
 @media (max-width: 767px) {
