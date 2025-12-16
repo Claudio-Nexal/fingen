@@ -508,7 +508,7 @@ if (!isFullwidth) {
 
       if (!raw) return;
 
-      target.innerHTML = `<span class="title-text">${raw}</span>`;
+      target.innerHTML = <span class="title-text">${raw}</span>;
       const textEl = target.querySelector(".title-text");
       if (!textEl) return;
 
@@ -522,49 +522,16 @@ if (!isFullwidth) {
 
       // 3) animazione riga per riga
       const lines = target.querySelectorAll(".title-line-inner");
-      
-      // forza overflow hidden durante l'animazione (su wrap e su ogni line)
-      gsap.set(wrap, { overflow: "hidden" });
-      gsap.set(target.querySelectorAll(".title-line"), { overflow: "hidden" });
-      
       gsap.from(lines, {
         yPercent: 120,
         rotate: -6,
         duration: 0.8,
         ease: "power3.out",
         stagger: 0.12,
-        onComplete: () => {
-          // quando l'animazione è finita, libera overflow
-          gsap.set(wrap, { overflow: "visible" });
-          gsap.set(target.querySelectorAll(".title-line"), { overflow: "visible" });
-        },
-        onReverseComplete: () => {
-          // quando torni indietro (reverse), ripristina per la prossima entrata
-          gsap.set(wrap, { overflow: "hidden" });
-          gsap.set(target.querySelectorAll(".title-line"), { overflow: "hidden" });
-        },
         scrollTrigger: {
           trigger: wrap,
           start: "top 80%",
-          toggleActions: "play none none reverse",
-          onEnter: () => {
-            gsap.set(wrap, { overflow: "hidden" });
-            gsap.set(target.querySelectorAll(".title-line"), { overflow: "hidden" });
-          },
-          onEnterBack: () => {
-            gsap.set(wrap, { overflow: "hidden" });
-            gsap.set(target.querySelectorAll(".title-line"), { overflow: "hidden" });
-          },
-          onLeave: () => {
-            // quando hai finito e sei uscito sotto, libera overflow
-            gsap.set(wrap, { overflow: "visible" });
-            gsap.set(target.querySelectorAll(".title-line"), { overflow: "visible" });
-          },
-          onLeaveBack: () => {
-            // quando esci sopra, libera overflow
-            gsap.set(wrap, { overflow: "visible" });
-            gsap.set(target.querySelectorAll(".title-line"), { overflow: "visible" });
-          }
+          toggleActions: "play none none reverse"
         }
       });
     });
