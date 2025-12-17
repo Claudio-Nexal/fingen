@@ -1,4 +1,4 @@
-//1.6.24
+//1.6.25
 
 
 
@@ -781,3 +781,18 @@ window.addEventListener("load", () => {
 });
 
 
+
+
+
+let lenis = new Lenis({
+  lerp: 0.1,
+  wheelMultiplier: 0.7,
+  gestureOrientation: "vertical",
+  normalizeWheel: false,
+  smoothTouch: false,
+});
+function raf(time) {
+  lenis.raf(time);
+  requestAnimationFrame(raf);
+}
+requestAnimationFrame(raf);
