@@ -1,24 +1,22 @@
-//1.6.13
+//1.6.14
+
+
+// Lenis
+document.addEventListener("DOMContentLoaded", () => {
+  window.lenis = new Lenis({
+    duration: 1.2,
+    smooth: true,
+    lerp: 0.5
+  });
+
+  // usa SOLO GSAP ticker (niente RAF separato)
+  gsap.ticker.lagSmoothing(0);
+  gsap.ticker.add((time) => {
+    window.lenis.raf(time * 1000);
+  });
+});
 
 setTimeout(() => {
-
-  // Lenis
-  document.addEventListener("DOMContentLoaded", () => {
-    window.lenis = new Lenis({
-      duration: 1.2,
-      smooth: true,
-      lerp: 0.5
-    });
-  
-    // usa SOLO GSAP ticker (niente RAF separato)
-    gsap.ticker.lagSmoothing(0);
-    gsap.ticker.add((time) => {
-      window.lenis.raf(time * 1000);
-    });
-  });
-  
-  
-  
   
   //countdown
   document.addEventListener("DOMContentLoaded", () => {
