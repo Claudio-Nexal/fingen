@@ -1,4 +1,4 @@
-//1.6.25
+//1.6.26
 
 
 
@@ -402,6 +402,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 //animazione menu
+// animazione menu (CON lock Lenis)
 (() => {
   function initMenu() {
     if (!window.gsap) return;
@@ -422,38 +423,62 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.__MENU_ANIM_INIT__) return;
     window.__MENU_ANIM_INIT__ = true;
 
+    const lenis = window.lenis || null;
+
     let isOpen = false;
     let isAnimating = false;
     let tl = null;
 
-    // ✅ safety: se in passato hai lasciato body bloccato, ripulisci
-    document.body.classList.remove("no-scroll");
-    document.body.style.position = "";
-    document.body.style.top = "";
-    document.body.style.left = "";
-    document.body.style.right = "";
-    document.body.style.width = "";
+    // ----- Lenis scroll lock -----
+    let savedScroll = 0;
+    const preventKeys = new Set(["ArrowUp","ArrowDown","PageUp","PageDown","Home","End"," ","Spacebar"]);
 
-    // --- Scroll lock (pulito) ---
-    let savedY = 0;
+    function onWheel(e) { e.preventDefault(); }
+    function onTouch(e) { e.preventDefault(); }
+    function onKeyDown(e) { if (preventKeys.has(e.key)) e.preventDefault(); }
+
     function lockScroll() {
-      savedY = window.scrollY || 0;
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${savedY}px`;
-      document.body.style.left = "0";
-      document.body.style.right = "0";
-      document.body.style.width = "100%";
-      document.body.classList.add("no-scroll"); // opzionale: se hai CSS per touch-action ecc.
+      savedScroll =
+        lenis && typeof lenis.scroll === "number"
+          ? lenis.scroll
+          : (window.scrollY || window.pageYOffset || 0);
+
+      // stop Lenis
+      if (lenis?.stop) lenis.stop();
+
+      // hard lock (evita wheel/touch che “scappano”)
+      window.addEventListener("wheel", onWheel, { passive: false });
+      window.addEventListener("touchmove", onTouch, { passive: false });
+      window.addEventListener("keydown", onKeyDown, { passive: false });
+
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
     }
+
     function unlockScroll() {
-      document.body.classList.remove("no-scroll");
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.left = "";
-      document.body.style.right = "";
-      document.body.style.width = "";
-      window.scrollTo(0, savedY);
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("touchmove", onTouch);
+      window.removeEventListener("keydown", onKeyDown);
+
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+
+      if (lenis?.start) lenis.start();
+
+      // ripristina posizione
+      if (lenis?.scrollTo) {
+        try {
+          lenis.scrollTo(savedScroll, { immediate: true });
+        } catch (_) {
+          window.scrollTo(0, savedScroll);
+        }
+      } else {
+        window.scrollTo(0, savedScroll);
+      }
     }
+
+    // safety: evita lock “appeso” su reload/nav
+    window.addEventListener("pagehide", () => { try { unlockScroll(); } catch(_){} });
 
     // ----- Stati iniziali -----
     gsap.set(menuOverlay, {
@@ -470,7 +495,6 @@ document.addEventListener('DOMContentLoaded', function() {
       if (openBtn)  gsap.set(openBtn,  { opacity: 1, x: 0, y: 0, rotation: 0, pointerEvents: "auto" });
       if (closeBtn) gsap.set(closeBtn, { opacity: 0, x: -5, y: 10, rotation: 5, pointerEvents: "none" });
     }
-
     function showCloseIcon() {
       if (openBtn)  gsap.set(openBtn,  { opacity: 0, x: -5, y: -10, rotation: -5, pointerEvents: "none" });
       if (closeBtn) gsap.set(closeBtn, { opacity: 1, x: 0, y: 0, rotation: 0, pointerEvents: "auto" });
@@ -497,6 +521,7 @@ document.addEventListener('DOMContentLoaded', function() {
         onComplete: () => { isOpen = true; isAnimating = false; }
       });
 
+      // anima SOLO page-layer
       tl.to(pageLayer, { rotation: 10, x: 300, y: 450, scale: 1.5, overwrite: "auto" }, 0);
       tl.to(menuContent, { rotation: 0, x: 0, y: 0, scale: 1, opacity: 1, overwrite: "auto" }, 0);
       tl.to(menuOverlay, { clipPath: "polygon(0% 0%, 100% 0%, 100% 175%, 0% 100%)" }, 0);
@@ -527,7 +552,6 @@ document.addEventListener('DOMContentLoaded', function() {
           gsap.set([".menu-link .w-dropdown", ".menu-link a"], { y: "120%", opacity: 0.25 });
 
           if (brandImg) brandImg.src = defaultBrandSrc;
-
           unlockScroll();
         }
       });
@@ -545,240 +569,6 @@ document.addEventListener('DOMContentLoaded', function() {
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initMenu);
   else initMenu();
 })();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//animazioni titoli
-window.addEventListener("load", () => {
-
-  // Desktop-only: niente animazione sotto 992px (Webflow tablet/mobile)
-  if (window.matchMedia("(max-width: 991px)").matches) return;
-  
-  (() => {
-    const WRAP_SELECTOR = ".title-animation";
-    const INNER_TEXT_TAGS = "h1,h2,h3,h4,h5,h6,p";
-    const TOP_TOLERANCE = 2;
-    const RESIZE_DEBOUNCE = 150;
-
-    function initTitleLineAnim() {
-      if (!window.gsap || !window.ScrollTrigger) return;
-      gsap.registerPlugin(ScrollTrigger);
-
-      document.querySelectorAll(WRAP_SELECTOR).forEach((wrap) => {
-        const target = pickTarget(wrap);
-        if (!target) return;
-
-        buildOrRebuild(wrap, target);
-        ensureObservers(wrap, target);
-      });
-
-      ScrollTrigger.refresh();
-    }
-
-    function pickTarget(wrap) {
-      if (wrap.matches(INNER_TEXT_TAGS)) return wrap;
-      const inside = wrap.querySelector(INNER_TEXT_TAGS);
-      if (inside) return inside;
-      return wrap;
-    }
-
-    function getLayoutWidth(el) {
-      // offsetWidth NON è influenzato da transform/scale
-      return el.offsetWidth || el.clientWidth || 0;
-    }
-
-    function buildOrRebuild(wrap, target) {
-      if (!target.dataset.titleRaw) {
-        const raw = (target.innerText || "")
-          .replace(/\u00A0/g, " ")
-          .replace(/\s+/g, " ")
-          .trim();
-        if (!raw) return;
-        target.dataset.titleRaw = raw;
-      }
-
-      const w = getLayoutWidth(target);
-
-      // evita rebuild inutili (su transform del menu non cambia)
-      if (target.dataset.linesSplit === "1" && Number(target.dataset.splitWidth || 0) === w) {
-        // se già animato, assicurati che resti “fisso”
-        if (target.dataset.titleAnimDone === "1") {
-          const doneLines = target.querySelectorAll(".title-line-inner");
-          if (doneLines.length) gsap.set(doneLines, { yPercent: 0, clearProps: "transform" });
-        }
-        return;
-      }
-
-      // kill vecchi
-      if (target._titleTween) target._titleTween.kill();
-      if (target._titleST) target._titleST.kill();
-
-      // rebuild markup
-      target.innerHTML = "";
-      const textEl = document.createElement("span");
-      textEl.className = "title-text";
-      target.appendChild(textEl);
-
-      const lines = splitLinesByRange(textEl, target.dataset.titleRaw);
-      if (!lines || !lines.length) return;
-
-      textEl.textContent = "";
-      lines.forEach((lineText) => {
-        const line = document.createElement("span");
-        line.className = "title-line";
-
-        const inner = document.createElement("span");
-        inner.className = "title-line-inner";
-        inner.textContent = lineText;
-
-        line.appendChild(inner);
-        textEl.appendChild(line);
-      });
-
-      target.dataset.linesSplit = "1";
-      target.dataset.splitWidth = String(w);
-
-      const lineInners = target.querySelectorAll(".title-line-inner");
-      if (!lineInners.length) return;
-      
-      // se già completato: stato finale e stop
-      if (target.dataset.titleAnimDone === "1") {
-        gsap.set(lineInners, { yPercent: 0, clearProps: "transform" });
-        return;
-      }
-      
-      // ✅ stato iniziale “nascosto” (così non li vedi già fissati)
-      gsap.set(lineInners, { yPercent: 130 });
-      
-      // anima verso lo stato finale
-      const tween = gsap.to(lineInners, {
-        yPercent: 0,
-        duration: 1.2,
-        ease: "power2.inOut",
-        stagger: 0.12,
-        paused: true,
-        overwrite: "auto"
-      });
-      
-      const st = ScrollTrigger.create({
-        trigger: wrap,
-        start: "top 80%",
-        once: true,
-        onEnter: () => tween.play()
-      });
-      
-      tween.eventCallback("onComplete", () => {
-        target.dataset.titleAnimDone = "1";
-        st.kill();
-        gsap.set(lineInners, { yPercent: 0, clearProps: "transform" });
-      });
-      
-      target._titleTween = tween;
-      target._titleST = st;
-    }
-
-    function splitLinesByRange(containerEl, raw) {
-      containerEl.textContent = raw;
-      const node = containerEl.firstChild;
-      if (!node || node.nodeType !== Node.TEXT_NODE) return [raw];
-
-      const range = document.createRange();
-
-      const wordStarts = [];
-      const re = /\S+/g;
-      let m;
-      while ((m = re.exec(raw))) wordStarts.push(m.index);
-      if (!wordStarts.length) return [raw];
-
-      const lineStarts = [0];
-      let currentTop = getCharTop(range, node, wordStarts[0]);
-      if (currentTop == null) return [raw];
-
-      for (let i = 1; i < wordStarts.length; i++) {
-        const idx = wordStarts[i];
-        const top = getCharTop(range, node, idx);
-        if (top == null) continue;
-
-        if (Math.abs(top - currentTop) > TOP_TOLERANCE) {
-          lineStarts.push(idx);
-          currentTop = top;
-        }
-      }
-
-      const lines = [];
-      for (let i = 0; i < lineStarts.length; i++) {
-        const start = lineStarts[i];
-        const end = (i + 1 < lineStarts.length) ? lineStarts[i + 1] : raw.length;
-        const chunk = raw.slice(start, end).trimEnd();
-        if (chunk) lines.push(chunk);
-      }
-
-      return lines.length ? lines : [raw];
-    }
-
-    function getCharTop(range, textNode, index) {
-      const len = textNode.length;
-      if (index < 0 || index >= len) return null;
-
-      let i = index;
-      while (i < len && /\s/.test(textNode.data[i])) i++;
-      if (i >= len) return null;
-
-      range.setStart(textNode, i);
-      range.setEnd(textNode, i + 1);
-
-      const rect = range.getBoundingClientRect();
-      if (!rect || !isFinite(rect.top) || rect.height === 0) return null;
-      return rect.top;
-    }
-
-    function ensureObservers(wrap, target) {
-      if (target._titleRO) return;
-
-      let t = null;
-      const schedule = () => {
-        clearTimeout(t);
-        t = setTimeout(() => {
-          buildOrRebuild(wrap, target);
-          if (window.ScrollTrigger) ScrollTrigger.refresh();
-        }, RESIZE_DEBOUNCE);
-      };
-
-      if (window.ResizeObserver) {
-        target._titleRO = new ResizeObserver(schedule);
-        target._titleRO.observe(target);
-      } else {
-        window.addEventListener("resize", schedule);
-        target._titleRO = { disconnect() {} };
-      }
-    }
-
-    initTitleLineAnim();
-
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(initTitleLineAnim);
-    }
-  })();
-});
 
 
 
