@@ -1,4 +1,4 @@
-/* 1.2.17 */
+/* 1.2.18 */
 
 html, body{
   overflow: hidden;
@@ -137,13 +137,13 @@ a.link-menu-footer:not(:hover)::after{
 
 
 
-link-underline-anim{
+.link-underline-anim{
   position: relative;
   display: inline-block;
   padding-bottom: 5px;
 }
 
-link-underline-anim::after{
+.link-underline-anim::after{
   content:'';
   position:absolute;
   left:0;
@@ -158,7 +158,7 @@ link-underline-anim::after{
   pointer-events: none;
 }
 
-link-underline-anim.undeline-white::after{
+.link-underline-anim.undeline-white::after{
   content:'';
   position:absolute;
   left:0;
@@ -173,13 +173,13 @@ link-underline-anim.undeline-white::after{
   pointer-events: none;
 }
 
-link-underline-anim:hover::after,
-link-underline-anim:focus-visible::after{
+.link-underline-anim:hover::after,
+.link-underline-anim:focus-visible::after{
   transform: scaleX(1);
 }
 
 /* opzionale: in uscita “chiude” tornando verso destra (non verso il centro) */
-link-underline-anim:not(:hover)::after{
+.link-underline-anim:not(:hover)::after{
   transform-origin: right center;
 }
 
