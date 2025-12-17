@@ -1,4 +1,4 @@
-/* 1.2.11 */
+/* 1.2.12 */
 
 html, body{
   overflow: hidden;
@@ -129,13 +129,18 @@ a.link-menu-footer:not(:hover)::after{
 }
 
 
-a.link-menu-footer-email{
+
+
+
+
+
+div.link-menu-footer-email{
   position: relative;
   display: inline-block;
   padding-bottom: 5px;
 }
 
-a.link-menu-footer-email::after{
+div.link-menu-footer-email::after{
   content:'';
   position:absolute;
   left:0;
@@ -150,13 +155,13 @@ a.link-menu-footer-email::after{
   pointer-events: none;
 }
 
-a.link-menu-footer-email:hover::after,
-a.link-menu-footer-email:focus-visible::after{
+div.link-menu-footer-email:hover::after,
+div.link-menu-footer-email:focus-visible::after{
   transform: scaleX(1);
 }
 
 /* opzionale: in uscita “chiude” tornando verso destra (non verso il centro) */
-a.link-menu-footer-email:not(:hover)::after{
+div.link-menu-footer-email:not(:hover)::after{
   transform-origin: right center;
 }
 
