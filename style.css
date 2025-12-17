@@ -1,4 +1,4 @@
-/* 1.2.3 */
+/* 1.2.4 */
 
 /* underline solo hover per nav-link-navbar */
 .nav-link-navbar{
@@ -36,7 +36,7 @@
 
 /* opzionale: in uscita “chiude” tornando verso sinistra (non verso il centro) */
 .nav-link-navbar:not(:hover)::after{
-  transform-origin: left center;
+  transform-origin: right center;
 }
 
 /* opzionale: micro-delay come nel tuo esempio */
