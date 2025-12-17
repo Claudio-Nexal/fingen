@@ -1,4 +1,4 @@
-//1.1
+//1.1.2
 
 // Lenis
 document.addEventListener("DOMContentLoaded", () => {
@@ -21,44 +21,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
 //Fix dropdown menu
 document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".w-dropdown").forEach((dd) => {
-    const toggle = dd.querySelector(".w-dropdown-toggle");
-    const link   = dd.querySelector(".w-dropdown-toggle > a");
-    const icon   = dd.querySelector(".w-icon-dropdown-toggle");
-
-    if (!toggle || !link || !icon) return;
-
-    // CLICK sul testo: naviga (blocca Webflow dropdown)
-    link.addEventListener("click", (e) => {
-      // consenti comportamenti standard (nuova tab, ecc.)
-      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || link.target === "_blank") return;
-
-      e.preventDefault();
+  document.querySelectorAll(".w-dropdown-toggle a.nav-link-navbar").forEach((link) => {
+    const stop = (e) => {
       e.stopPropagation();
       e.stopImmediatePropagation();
+      // NON fare preventDefault: così la navigazione resta nativa
+    };
 
-      window.location.assign(link.href);
-    }, true); // <-- capture (fondamentale)
+    // Webflow spesso apre su mousedown/pointerdown: fermali
+    link.addEventListener("pointerdown", stop, true);
+    link.addEventListener("mousedown", stop, true);
+    link.addEventListener("touchstart", stop, { capture: true, passive: true });
 
-    // ENTER/SPACE sul testo: naviga
+    // e anche sul click
+    link.addEventListener("click", stop, true);
+
+    // tastiera
     link.addEventListener("keydown", (e) => {
-      if (e.key !== "Enter" && e.key !== " ") return;
-
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-
-      window.location.assign(link.href);
-    }, true);
-
-    // CLICK sulla toggle ma NON sulla freccia: non aprire il dropdown
-    toggle.addEventListener("click", (e) => {
-      const clickedIcon = e.target.closest(".w-icon-dropdown-toggle");
-      if (!clickedIcon) {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-      }
+      if (e.key === "Enter" || e.key === " ") stop(e);
     }, true);
   });
 });
