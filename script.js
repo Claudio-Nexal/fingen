@@ -16,7 +16,7 @@ setTimeout(() => {
       window.lenis.raf(time * 1000);
     });
   });
-}, 1000);
+}, 200);
 
   
 //countdown
