@@ -1,4 +1,4 @@
-//1.4.1
+//1.4.2
 
 // Lenis
 document.addEventListener("DOMContentLoaded", () => {
@@ -116,7 +116,7 @@ window.addEventListener("load", () => {
       ease: "power2.inOut",
       scrollTrigger: {
         trigger: el,
-        start: "top 90%",
+        start: "top 75%",
         toggleActions: "play none none none",
         once: true,
       },
