@@ -1,4 +1,4 @@
-/* 1.2.20 */
+/* 1.2.21 */
 
 html, body{
   overflow: hidden;
@@ -55,6 +55,18 @@ html, body{
 /* opzionale: micro-delay come nel tuo esempio */
 .nav-link-navbar::after{
   transition-delay: .12s;
+}
+
+/* underline visibile di default sul link attivo */
+.nav-link-navbar.w--current::after{
+  transform: scaleX(1);
+  transform-origin: left center;
+  transition-delay: 0s; /* opzionale */
+}
+
+/* opzionale: anche in hover resta stabile */
+.nav-link-navbar.w--current:hover::after{
+  transform: scaleX(1);
 }
 
 
