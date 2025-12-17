@@ -1,4 +1,4 @@
-/* 1.2.6 */
+/* 1.2.7 */
 
 html, body{
   overflow: hidden;
@@ -53,41 +53,41 @@ html, body{
   transition-delay: .12s;
 }
 
-/* Voci in colonna */
+/* Dropdown list: non deve occupare spazio */
+.w-dropdown { position: relative; }
+
 .w-dropdown-list{
-  display: flex !important;
-  flex-direction: column;
+  position: absolute;        /* 👈 evita spazio vuoto */
+  left: 0;
+  top: 100%;
+  min-width: 100%;
+  /* colonna */
+  display: block;            /* lascia a Webflow il display */
 }
-.w-dropdown-link{
+
+.w-dropdown-list .w-dropdown-link{
   display: block;
   width: 100%;
 }
 
-/* Animazione apertura/chiusura */
+/* Stato chiuso (ma renderizzabile per animare) */
 .w-dropdown .w-dropdown-list{
-  /* la teniamo sempre renderizzata per poter animare */
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px);
   pointer-events: none;
-
-  transition:
-    opacity .25s ease,
-    transform .25s ease,
-    visibility 0s linear .25s;
+  transition: opacity .25s ease, transform .25s ease, visibility 0s linear .25s;
   will-change: opacity, transform;
 }
 
-.w-dropdown.w--open .w-dropdown-list{
+/* Stato aperto: Webflow può mettere w--open sul wrapper o sulla list */
+.w-dropdown.w--open .w-dropdown-list,
+.w-dropdown-list.w--open{
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
   pointer-events: auto;
-
-  transition:
-    opacity .25s ease,
-    transform .25s ease,
-    visibility 0s linear 0s;
+  transition: opacity .25s ease, transform .25s ease, visibility 0s linear 0s;
 }
 
 /* opzionale */
