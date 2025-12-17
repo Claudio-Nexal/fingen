@@ -1,4 +1,4 @@
-/* 1.2.8 */
+/* 1.2.9 */
 
 html, body{
   overflow: hidden;
@@ -59,6 +59,30 @@ html, body{
 
 
 
+/* Accordion dropdown: non lascia spazio da chiuso */
+.w-dropdown-list{
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  display: block; /* non forzare flex qui */
+  will-change: height, opacity, transform;
+}
+
+.w-dropdown.is-open .w-dropdown-list{
+  pointer-events: auto;
+}
+
+/* voci in colonna (ok anche con display:block) */
+.w-dropdown-link{
+  display: block;
+  width: 100%;
+}
+
+
+
+
 
 
 
@@ -81,7 +105,7 @@ a.link-menu-footer::after{
   left:0;
   bottom:0;
   width:100%;
-  height:2px;
+  height:1.5px;
   background: currentColor;          /* prende il colore del testo */
   transform: scaleX(0);
   transform-origin: left center;     /* cresce verso destra */
