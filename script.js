@@ -1,4 +1,4 @@
-//1.5.1
+//1.6.1
 
 // Lenis
 document.addEventListener("DOMContentLoaded", () => {
@@ -14,6 +14,96 @@ document.addEventListener("DOMContentLoaded", () => {
     window.lenis.raf(time * 1000);
   });
 });
+
+
+
+
+
+
+//animazione dropdown menu
+document.addEventListener("DOMContentLoaded", () => {
+  if (!window.gsap) return;
+
+  const DROPDOWNS = document.querySelectorAll(".w-dropdown");
+  if (!DROPDOWNS.length) return;
+
+  function closeDropdown(dd, instant = false) {
+    const list = dd.querySelector(".w-dropdown-list");
+    const toggle = dd.querySelector(".w-dropdown-toggle");
+    if (!list) return;
+
+    dd.classList.remove("is-open");
+    if (toggle) toggle.setAttribute("aria-expanded", "false");
+
+    gsap.killTweensOf(list);
+
+    if (instant) {
+      gsap.set(list, { height: 0, opacity: 0, y: -8 });
+      return;
+    }
+
+    gsap.to(list, { height: 0, opacity: 0, y: -8, duration: 0.25, ease: "power2.out" });
+  }
+
+  function openDropdown(dd) {
+    const list = dd.querySelector(".w-dropdown-list");
+    const toggle = dd.querySelector(".w-dropdown-toggle");
+    if (!list) return;
+
+    // chiudi gli altri (opzionale)
+    DROPDOWNS.forEach((other) => { if (other !== dd) closeDropdown(other); });
+
+    dd.classList.add("is-open");
+    if (toggle) toggle.setAttribute("aria-expanded", "true");
+
+    gsap.killTweensOf(list);
+    // da height:0 -> height:auto
+    gsap.set(list, { opacity: 0, y: -8, height: 0 });
+
+    gsap.to(list, {
+      height: "auto",
+      opacity: 1,
+      y: 0,
+      duration: 0.3,
+      ease: "power2.out"
+    });
+  }
+
+  // init: forza chiuso “pulito”
+  DROPDOWNS.forEach((dd) => {
+    const list = dd.querySelector(".w-dropdown-list");
+    const toggle = dd.querySelector(".w-dropdown-toggle");
+    if (toggle) toggle.setAttribute("aria-expanded", "false");
+    if (list) gsap.set(list, { height: 0, opacity: 0, y: -8 });
+
+    // click SOLO sulla freccia apre/chiude
+    dd.addEventListener("click", (e) => {
+      const clickedArrow = e.target.closest(".w-icon-dropdown-toggle");
+      if (!clickedArrow) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      const isOpen = dd.classList.contains("is-open");
+      if (isOpen) closeDropdown(dd);
+      else openDropdown(dd);
+    }, true);
+  });
+
+  // chiudi clic fuori
+  document.addEventListener("click", (e) => {
+    if (e.target.closest(".w-dropdown")) return;
+    DROPDOWNS.forEach((dd) => closeDropdown(dd));
+  });
+
+  // ESC chiude
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") DROPDOWNS.forEach((dd) => closeDropdown(dd));
+  });
+});
+
+
 
 
 
