@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    gsap.to(list, { height: 0, opacity: 0, y: -8, duration: 0.25, ease: "power2.out" });
+    gsap.to(list, { height: 0, opacity: 0, y: -8, duration: 0.5, ease: "power2.out" });
   }
 
   function openDropdown(dd) {
