@@ -1,4 +1,4 @@
-/* 1.2.2 */
+/* 1.2.3 */
 
 /* underline solo hover per nav-link-navbar */
 .nav-link-navbar{
@@ -8,7 +8,7 @@
 }
 
 /* di base: niente underline */
-.nav-link-navbar::before,
+
 .nav-link-navbar::after{
   content:'';
   position:absolute;
@@ -16,7 +16,9 @@
   bottom:0;
   width:100%;
   height:2px;
+  background: currentColor;
   transform: scaleX(0);
+  transform-origin: left center;      /* 👈 cresce verso destra */
   transition: transform .3s ease-out;
   pointer-events: none;
 }
@@ -27,11 +29,14 @@
   background-color: currentColor;
 }
 
-/* hover: appare */
 .nav-link-navbar:hover::after,
 .nav-link-navbar:focus-visible::after{
   transform: scaleX(1);
-  transform-origin: bottom left;
+}
+
+/* opzionale: in uscita “chiude” tornando verso sinistra (non verso il centro) */
+.nav-link-navbar:not(:hover)::after{
+  transform-origin: left center;
 }
 
 /* opzionale: micro-delay come nel tuo esempio */
