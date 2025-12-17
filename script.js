@@ -1,22 +1,20 @@
 //1.6.15
 
 
-setTimeout(() => {
-  // Lenis
-  document.addEventListener("DOMContentLoaded", () => {
-    window.lenis = new Lenis({
-      duration: 1.2,
-      smooth: true,
-      lerp: 0.5
-    });
-  
-    // usa SOLO GSAP ticker (niente RAF separato)
-    gsap.ticker.lagSmoothing(0);
-    gsap.ticker.add((time) => {
-      window.lenis.raf(time * 1000);
-    });
+// Lenis
+document.addEventListener("DOMContentLoaded", () => {
+  window.lenis = new Lenis({
+    duration: 1.2,
+    smooth: true,
+    lerp: 0.5
   });
-}, 200);
+
+  // usa SOLO GSAP ticker (niente RAF separato)
+  gsap.ticker.lagSmoothing(0);
+  gsap.ticker.add((time) => {
+    window.lenis.raf(time * 1000);
+  });
+});
 
   
 //countdown
