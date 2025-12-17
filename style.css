@@ -1,4 +1,4 @@
-/* 1.2.14 */
+/* 1.2.15 */
 
 html, body{
   overflow: hidden;
@@ -166,6 +166,38 @@ div.link-menu-footer-email:focus-visible::after{
 
 /* opzionale: in uscita “chiude” tornando verso destra (non verso il centro) */
 div.link-menu-footer-email:not(:hover)::after{
+  transform-origin: right center;
+}
+
+
+link-underline-anim{
+  position: relative;
+  display: inline-block;
+  padding-bottom: 5px;
+}
+
+link-underline-anim::after{
+  content:'';
+  position:absolute;
+  left:0;
+  bottom:0;
+  width:100%;
+  height:1.5px;
+  background: currentColor;          /* prende il colore del testo */
+  transform: scaleX(0);
+  transform-origin: left center;     /* cresce verso destra */
+  transition: transform .3s ease-out;
+  transition-delay: .12s;            /* come la navbar */
+  pointer-events: none;
+}
+
+link-underline-anim:hover::after,
+link-underline-anim:focus-visible::after{
+  transform: scaleX(1);
+}
+
+/* opzionale: in uscita “chiude” tornando verso destra (non verso il centro) */
+link-underline-anim:not(:hover)::after{
   transform-origin: right center;
 }
 
