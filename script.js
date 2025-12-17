@@ -1,4 +1,4 @@
-//1.2.1
+//1.2.2
 
 // Lenis
 document.addEventListener("DOMContentLoaded", () => {
@@ -576,6 +576,10 @@ if (!isFullwidth) {
 
 //animazioni titoli
 window.addEventListener("load", () => {
+
+  // Desktop-only: niente animazione sotto 992px (Webflow tablet/mobile)
+  if (window.matchMedia("(max-width: 991px)").matches) return;
+  
   (() => {
     const WRAP_SELECTOR = ".title-animation";
     const INNER_TEXT_TAGS = "h1,h2,h3,h4,h5,h6,p";
