@@ -86,7 +86,7 @@ window.addEventListener("load", () => {
       ease: "power2.inOut",
       scrollTrigger: {
         trigger: el,
-        start: "top 50%",
+        start: "top 60%",
         toggleActions: "play none none none",
         once: true,
       },
