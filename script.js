@@ -1,22 +1,17 @@
 
 //Lenis
+// Lenis
 document.addEventListener("DOMContentLoaded", () => {
-  const lenis = new Lenis({
+  window.lenis = new Lenis({
     duration: 1.2,
     smooth: true,
-    lerp: .5
+    lerp: 0.5
   });
 
-  function raf(time) {
-    lenis.raf(time);
-    requestAnimationFrame(raf);
-  }
-
-  requestAnimationFrame(raf);
-
-  // sincronizza GSAP con Lenis
+  // usa SOLO GSAP ticker (niente RAF separato)
+  gsap.ticker.lagSmoothing(0);
   gsap.ticker.add((time) => {
-    lenis.raf(time * 1000);
+    window.lenis.raf(time * 1000);
   });
 });
 
@@ -228,6 +223,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!window.gsap) return;
 
     const container   = document.querySelector(".content-container");
+    const pageLayer   = container?.querySelector(":scope > .page-layer") || document.querySelector(".page-layer");
     const menuOverlay = document.querySelector(".menu-overlay");
     const menuContent = document.querySelector(".menu-content");
     const brandImg    = document.querySelector(".nav-brand img");
@@ -238,63 +234,71 @@ document.addEventListener('DOMContentLoaded', function() {
     const openBrandSrc    = "https://cdn.prod.website-files.com/68f6081c93cf52481f6bceb3/691753236796e9f7de4f93b9_Logo%20blue.svg";
     const defaultBrandSrc = brandImg?.src;
 
-    if (!container || !menuOverlay || !menuContent || (!openBtn && !closeBtn)) return;
+    if (!container || !pageLayer || !menuOverlay || !menuContent || (!openBtn && !closeBtn)) return;
     if (window.__MENU_ANIM_INIT__) return;
     window.__MENU_ANIM_INIT__ = true;
 
-    // Se c'è ScrollSmoother (GSAP), lo gestiamo. Se non c'è, nessun problema.
-    const smoother = window.ScrollSmoother?.get?.() || null;
-
-    // 1) crea/ottieni un wrapper interno da animare (così non tocchi l'elemento che lo scroll trasforma)
-    const pageLayer = ensurePageLayer(container);
+    const lenis = window.lenis || null;
 
     let isOpen = false;
     let isAnimating = false;
+    let tl = null;
 
-    // --- scroll lock ---
-    let scrollY = 0;
-    function lockBodyScroll() {
-      scrollY = smoother ? smoother.scrollTop() : (window.scrollY || window.pageYOffset || 0);
+    // ----- Scroll lock (Lenis stop/start + hard lock input) -----
+    let savedScroll = 0;
 
-      if (smoother) smoother.paused(true);
+    const preventKeys = new Set(["ArrowUp","ArrowDown","PageUp","PageDown","Home","End"," ","Spacebar"]);
 
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.left = "0";
-      document.body.style.right = "0";
-      document.body.style.width = "100%";
+    function onWheel(e) { e.preventDefault(); }
+    function onTouch(e) { e.preventDefault(); }
+    function onKeyDown(e) { if (preventKeys.has(e.key)) e.preventDefault(); }
+
+    function lockScroll() {
+      savedScroll = lenis ? (lenis.scroll ?? window.scrollY ?? 0) : (window.scrollY || window.pageYOffset || 0);
+
+      if (lenis) lenis.stop();
+
+      window.addEventListener("wheel", onWheel, { passive: false });
+      window.addEventListener("touchmove", onTouch, { passive: false });
+      window.addEventListener("keydown", onKeyDown, { passive: false });
+
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
     }
-    function unlockBodyScroll() {
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.left = "";
-      document.body.style.right = "";
-      document.body.style.width = "";
+
+    function unlockScroll() {
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("touchmove", onTouch);
+      window.removeEventListener("keydown", onKeyDown);
+
+      document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
 
-      if (smoother) {
-        smoother.paused(false);
-        smoother.scrollTop(scrollY);
+      if (lenis) {
+        lenis.start();
+        lenis.scrollTo(savedScroll, { immediate: true });
       } else {
-        window.scrollTo(0, scrollY);
+        window.scrollTo(0, savedScroll);
       }
     }
 
-    // stato iniziale overlay
-    gsap.set(menuOverlay, { pointerEvents: "none" });
+    // ----- Stati iniziali -----
+    gsap.set(menuOverlay, {
+      pointerEvents: "none",
+      clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)"
+    });
 
-    // stato iniziale menu content + link (coerente con close)
     gsap.set(menuContent, { rotation: -15, x: -100, y: -100, scale: 1.5, opacity: 0.25 });
     gsap.set([".menu-link .w-dropdown", ".menu-link a"], { y: "120%", opacity: 0.25 });
 
-    // perf: evita blur / jitter
-    gsap.set([pageLayer, menuContent], { willChange: "transform" });
+    // perf / stabilità
+    gsap.set([pageLayer, menuContent], { willChange: "transform", transformOrigin: "50% 50%" });
 
     function showOpenIcon() {
       if (openBtn)  gsap.set(openBtn,  { opacity: 1, x: 0, y: 0, rotation: 0, pointerEvents: "auto" });
       if (closeBtn) gsap.set(closeBtn, { opacity: 0, x: -5, y: 10, rotation: 5, pointerEvents: "none" });
     }
+
     function showCloseIcon() {
       if (openBtn)  gsap.set(openBtn,  { opacity: 0, x: -5, y: -10, rotation: -5, pointerEvents: "none" });
       if (closeBtn) gsap.set(closeBtn, { opacity: 1, x: 0, y: 0, rotation: 0, pointerEvents: "auto" });
@@ -309,6 +313,7 @@ document.addEventListener('DOMContentLoaded', function() {
         openMenu();
       });
     }
+
     if (closeBtn) {
       closeBtn.style.cursor = "pointer";
       closeBtn.addEventListener("click", (e) => {
@@ -317,16 +322,16 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
 
-    // timeline unica = animazione più pulita e sincronizzata
-    let tl = null;
-
+    // ----- Animazioni -----
     function openMenu() {
       if (isAnimating || isOpen) return;
       isAnimating = true;
 
-      lockBodyScroll();
+      lockScroll();
+
       if (brandImg) brandImg.src = openBrandSrc;
       showCloseIcon();
+
       gsap.set(menuOverlay, { pointerEvents: "auto" });
 
       tl?.kill();
@@ -338,6 +343,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       });
 
+      // anima SOLO page-layer (content-container resta gestito da Lenis)
       tl.to(pageLayer, {
         rotation: 10,
         x: 300,
@@ -385,7 +391,8 @@ document.addEventListener('DOMContentLoaded', function() {
           gsap.set([".menu-link .w-dropdown", ".menu-link a"], { y: "120%", opacity: 0.25 });
 
           if (brandImg) brandImg.src = defaultBrandSrc;
-          unlockBodyScroll();
+
+          unlockScroll();
         }
       });
 
@@ -394,7 +401,8 @@ document.addEventListener('DOMContentLoaded', function() {
         x: 0,
         y: 0,
         scale: 1,
-        overwrite: "auto"
+        overwrite: "auto",
+        clearProps: "transform"
       }, 0);
 
       tl.to(menuContent, {
@@ -411,24 +419,10 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 0);
     }
 
-    function ensurePageLayer(containerEl) {
-      // se esiste già, usalo
-      const existing = containerEl.querySelector(":scope > .page-layer");
-      if (existing) return existing;
-
-      // crea wrapper e sposta dentro tutti i figli (escludendo eventuali overlay/menu se fossero dentro)
-      const layer = document.createElement("div");
-      layer.className = "page-layer";
-
-      const children = Array.from(containerEl.children);
-      children.forEach((child) => {
-        if (child.classList.contains("menu-overlay") || child.classList.contains("menu-content")) return;
-        layer.appendChild(child);
-      });
-
-      containerEl.appendChild(layer);
-      return layer;
-    }
+    // Optional: ESC per chiudere
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && isOpen) closeMenu();
+    });
   }
 
   if (document.readyState === "loading") {
