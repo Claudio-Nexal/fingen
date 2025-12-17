@@ -1,4 +1,4 @@
-//1.6.23
+//1.6.24
 
 
 
@@ -426,11 +426,34 @@ document.addEventListener('DOMContentLoaded', function() {
     let isAnimating = false;
     let tl = null;
 
-    const preventKeys = new Set(["ArrowUp","ArrowDown","PageUp","PageDown","Home","End"," ","Spacebar"]);
+    // ✅ safety: se in passato hai lasciato body bloccato, ripulisci
+    document.body.classList.remove("no-scroll");
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.left = "";
+    document.body.style.right = "";
+    document.body.style.width = "";
 
-    function onWheel(e) { e.preventDefault(); }
-    function onTouch(e) { e.preventDefault(); }
-    function onKeyDown(e) { if (preventKeys.has(e.key)) e.preventDefault(); }
+    // --- Scroll lock (pulito) ---
+    let savedY = 0;
+    function lockScroll() {
+      savedY = window.scrollY || 0;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${savedY}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.width = "100%";
+      document.body.classList.add("no-scroll"); // opzionale: se hai CSS per touch-action ecc.
+    }
+    function unlockScroll() {
+      document.body.classList.remove("no-scroll");
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+      window.scrollTo(0, savedY);
+    }
 
     // ----- Stati iniziali -----
     gsap.set(menuOverlay, {
@@ -441,7 +464,6 @@ document.addEventListener('DOMContentLoaded', function() {
     gsap.set(menuContent, { rotation: -15, x: -100, y: -100, scale: 1.5, opacity: 0.25 });
     gsap.set([".menu-link .w-dropdown", ".menu-link a"], { y: "120%", opacity: 0.25 });
 
-    // perf / stabilità
     gsap.set([pageLayer, menuContent], { willChange: "transform", transformOrigin: "50% 50%" });
 
     function showOpenIcon() {
@@ -456,27 +478,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     showOpenIcon();
 
-    if (openBtn) {
-      openBtn.style.cursor = "pointer";
-      openBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        openMenu();
-      });
-    }
+    openBtn?.addEventListener("click", (e) => { e.preventDefault(); openMenu(); });
+    closeBtn?.addEventListener("click", (e) => { e.preventDefault(); closeMenu(); });
 
-    if (closeBtn) {
-      closeBtn.style.cursor = "pointer";
-      closeBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        closeMenu();
-      });
-    }
-
-    // ----- Animazioni -----
     function openMenu() {
       if (isAnimating || isOpen) return;
       isAnimating = true;
 
+      lockScroll();
       if (brandImg) brandImg.src = openBrandSrc;
       showCloseIcon();
 
@@ -485,33 +494,12 @@ document.addEventListener('DOMContentLoaded', function() {
       tl?.kill();
       tl = gsap.timeline({
         defaults: { duration: 1.25, ease: "power4.inOut" },
-        onComplete: () => {
-          isOpen = true;
-          isAnimating = false;
-        }
+        onComplete: () => { isOpen = true; isAnimating = false; }
       });
 
-      // anima SOLO page-layer (content-container resta gestito da Lenis)
-      tl.to(pageLayer, {
-        rotation: 10,
-        x: 300,
-        y: 450,
-        scale: 1.5,
-        overwrite: "auto"
-      }, 0);
-
-      tl.to(menuContent, {
-        rotation: 0,
-        x: 0,
-        y: 0,
-        scale: 1,
-        opacity: 1,
-        overwrite: "auto"
-      }, 0);
-
-      tl.to(menuOverlay, {
-        clipPath: "polygon(0% 0%, 100% 0%, 100% 175%, 0% 100%)"
-      }, 0);
+      tl.to(pageLayer, { rotation: 10, x: 300, y: 450, scale: 1.5, overwrite: "auto" }, 0);
+      tl.to(menuContent, { rotation: 0, x: 0, y: 0, scale: 1, opacity: 1, overwrite: "auto" }, 0);
+      tl.to(menuOverlay, { clipPath: "polygon(0% 0%, 100% 0%, 100% 175%, 0% 100%)" }, 0);
 
       tl.to([".menu-link .w-dropdown", ".menu-link a"], {
         y: "0%",
@@ -540,43 +528,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
           if (brandImg) brandImg.src = defaultBrandSrc;
 
+          unlockScroll();
         }
       });
 
-      tl.to(pageLayer, {
-        rotation: 0,
-        x: 0,
-        y: 0,
-        scale: 1,
-        overwrite: "auto",
-        clearProps: "transform"
-      }, 0);
-
-      tl.to(menuContent, {
-        rotation: -15,
-        x: -100,
-        y: -100,
-        scale: 1.5,
-        opacity: 0.25,
-        overwrite: "auto"
-      }, 0);
-
-      tl.to(menuOverlay, {
-        clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)"
-      }, 0);
+      tl.to(pageLayer, { rotation: 0, x: 0, y: 0, scale: 1, overwrite: "auto", clearProps: "transform" }, 0);
+      tl.to(menuContent, { rotation: -15, x: -100, y: -100, scale: 1.5, opacity: 0.25, overwrite: "auto" }, 0);
+      tl.to(menuOverlay, { clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)" }, 0);
     }
 
-    // Optional: ESC per chiudere
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && isOpen) closeMenu();
     });
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initMenu);
-  } else {
-    initMenu();
-  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initMenu);
+  else initMenu();
 })();
 
 
