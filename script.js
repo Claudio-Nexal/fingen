@@ -1,4 +1,4 @@
-//1.1.2
+//1.1.3
 
 // Lenis
 document.addEventListener("DOMContentLoaded", () => {
@@ -21,25 +21,46 @@ document.addEventListener("DOMContentLoaded", () => {
 
 //Fix dropdown menu
 document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".w-dropdown-toggle a.nav-link-navbar").forEach((link) => {
-    const stop = (e) => {
+  document.querySelectorAll(".w-dropdown-toggle").forEach((toggle) => {
+    const isModifiedClick = (e, a) =>
+      e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a?.target === "_blank";
+
+    // 1) Webflow può aprire il dropdown su pointerdown/mousedown: fermalo se stai cliccando il testo-link
+    const stopOpenIfText = (e) => {
+      const a = e.target.closest("a.nav-link-navbar");
+      if (!a) return; // non è il testo -> lascia che Webflow gestisca (freccia apre)
+      if (isModifiedClick(e, a)) return; // lascia comportamento browser (nuova tab ecc.)
+
+      e.preventDefault();
       e.stopPropagation();
       e.stopImmediatePropagation();
-      // NON fare preventDefault: così la navigazione resta nativa
     };
 
-    // Webflow spesso apre su mousedown/pointerdown: fermali
-    link.addEventListener("pointerdown", stop, true);
-    link.addEventListener("mousedown", stop, true);
-    link.addEventListener("touchstart", stop, { capture: true, passive: true });
+    toggle.addEventListener("pointerdown", stopOpenIfText, true);
+    toggle.addEventListener("mousedown", stopOpenIfText, true);
+    toggle.addEventListener("touchstart", stopOpenIfText, { capture: true, passive: false });
 
-    // e anche sul click
-    link.addEventListener("click", stop, true);
+    // 2) Sul click del testo: naviga (ed evita l’apertura)
+    toggle.addEventListener(
+      "click",
+      (e) => {
+        const a = e.target.closest("a.nav-link-navbar");
+        if (!a) return;
 
-    // tastiera
-    link.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") stop(e);
-    }, true);
+        // per cmd/ctrl click ecc. blocca solo Webflow, lascia al browser l'azione default
+        if (isModifiedClick(e, a)) {
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          return;
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        window.location.assign(a.href);
+      },
+      true
+    );
   });
 });
 
