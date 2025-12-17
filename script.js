@@ -1,4 +1,4 @@
-//1.2.2
+//1.3.1
 
 // Lenis
 document.addEventListener("DOMContentLoaded", () => {
@@ -63,6 +63,40 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   });
 });
+
+
+
+
+
+
+
+// Fade-in immagini con classe .fade-in (GSAP + ScrollTrigger)
+window.addEventListener("load", () => {
+  if (!window.gsap || !window.ScrollTrigger) return;
+  gsap.registerPlugin(ScrollTrigger);
+
+  gsap.utils.toArray(".immagine-fade-in").forEach((el) => {
+    // stato iniziale
+    gsap.set(el, { autoAlpha: 0, y: 16 });
+
+    gsap.to(el, {
+      autoAlpha: 1,
+      y: 0,
+      duration: 0.8,
+      ease: "power2.inOut",
+      scrollTrigger: {
+        trigger: el,
+        start: "top 50%",
+        toggleActions: "play none none none",
+        once: true,
+      },
+    });
+  });
+
+  ScrollTrigger.refresh();
+});
+
+
 
 
 
