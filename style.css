@@ -1,3 +1,4 @@
+/* V 1.1.1 */
 
 /* Colore dei testi quando il menu è aperto */
 .navbar.navbar-is-open a,
@@ -355,9 +356,11 @@ body.no-scroll {
 }
 
 /* se non hai un'altezza già definita via Webflow, usa aspect-ratio */
-.parallax-image{
-  /* esempio: */
-  aspect-ratio: 2.39/1; /* oppure 4/3, ecc. */
+@media (min-width: 768px) {
+  .parallax-image{
+    /* esempio: */
+    aspect-ratio: 2.39/1; /* oppure 4/3, ecc. */
+  }
 }
 
 /* immagine assoluta: non dipende più da height:100% ambiguo */
