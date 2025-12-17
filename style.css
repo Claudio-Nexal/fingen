@@ -1,4 +1,4 @@
-/* 1.2.5 */
+/* 1.2.6 */
 
 html, body{
   overflow: hidden;
@@ -53,30 +53,51 @@ html, body{
   transition-delay: .12s;
 }
 
-/* Base: tieni il list sempre "presente" ma nascosto */
+/* Voci in colonna */
 .w-dropdown-list{
-  display: block !important;          /* evita il display:none che impedisce le transizioni */
-  max-height: 0;
-  overflow: hidden;
+  display: flex !important;
+  flex-direction: column;
+}
+.w-dropdown-link{
+  display: block;
+  width: 100%;
+}
+
+/* Animazione apertura/chiusura */
+.w-dropdown .w-dropdown-list{
+  /* la teniamo sempre renderizzata per poter animare */
   opacity: 0;
+  visibility: hidden;
   transform: translateY(-10px);
   pointer-events: none;
-  transition: max-height .35s ease, opacity .25s ease, transform .25s ease;
-  will-change: max-height, opacity, transform;
+
+  transition:
+    opacity .25s ease,
+    transform .25s ease,
+    visibility 0s linear .25s;
+  will-change: opacity, transform;
 }
 
-/* Aperto */
-.w-dropdown-list.w--open{
-  max-height: 800px;                  /* metti un valore > dell’altezza massima del tuo menu */
+.w-dropdown.w--open .w-dropdown-list{
   opacity: 1;
+  visibility: visible;
   transform: translateY(0);
   pointer-events: auto;
+
+  transition:
+    opacity .25s ease,
+    transform .25s ease,
+    visibility 0s linear 0s;
 }
 
-/* opzionale: riduci animazioni per chi lo chiede */
+/* opzionale */
 @media (prefers-reduced-motion: reduce){
-  .w-dropdown-list{ transition: none; }
+  .w-dropdown .w-dropdown-list{ transition: none; }
 }
+
+
+
+
 
 
 
