@@ -489,142 +489,174 @@ if (!isFullwidth) {
 
 //animazioni titoli
 window.addEventListener("load", () => {
-  const WRAP_SELECTOR = ".title-animation";
-  const INNER_TEXT_TAGS = "h1,h2,h3,h4,h5,h6,p";
+  // animazioni titoli (split SOLO in righe, senza wrapper per parola)
+  (() => {
+    const WRAP_SELECTOR = ".title-animation";
+    const INNER_TEXT_TAGS = "h1,h2,h3,h4,h5,h6,p";
+    const TOP_TOLERANCE = 2;
+    const RESIZE_DEBOUNCE = 150;
 
-  function initTitleLineAnim() {
-    if (!window.gsap || !window.ScrollTrigger) return;
-    gsap.registerPlugin(ScrollTrigger);
+    function initTitleLineAnim() {
+      if (!window.gsap || !window.ScrollTrigger) return;
+      gsap.registerPlugin(ScrollTrigger);
 
-    document.querySelectorAll(WRAP_SELECTOR).forEach((wrap) => {
-      const target = pickTarget(wrap);
-      if (!target) return;
+      document.querySelectorAll(WRAP_SELECTOR).forEach((wrap) => {
+        const target = pickTarget(wrap);
+        if (!target) return;
 
-      // evita doppie esecuzioni
-      if (target.dataset.linesSplit === "1") return;
+        buildOrRebuild(wrap, target);
+        ensureObservers(wrap, target);
+      });
 
-      // 1) crea wrapper inline senza cambiare tag (h1/h2/p restano)
-      const raw = target.innerText
-        .replace(/\u00A0/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
+      ScrollTrigger.refresh();
+    }
 
-      if (!raw) return;
+    function pickTarget(wrap) {
+      if (wrap.matches(INNER_TEXT_TAGS)) return wrap;
+      const inside = wrap.querySelector(INNER_TEXT_TAGS);
+      if (inside) return inside;
+      return wrap;
+    }
 
-      target.innerHTML = '<span class="title-text">' + raw + '</span>';
-      const textEl = target.querySelector(".title-text");
-      if (!textEl) return;
+    function buildOrRebuild(wrap, target) {
+      if (!target.dataset.titleRaw) {
+        const raw = (target.innerText || "")
+          .replace(/\u00A0/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+        if (!raw) return;
+        target.dataset.titleRaw = raw;
+      }
 
-      // 2) split in righe reali
-      const lineCount = splitLines(textEl);
+      const w = Math.round(target.getBoundingClientRect().width);
+      if (target.dataset.linesSplit === "1" && Number(target.dataset.splitWidth || 0) === w) return;
 
-      // se non ha creato righe, non animare
-      if (!lineCount) return;
+      if (target._titleTween) target._titleTween.kill();
+      if (target._titleST) target._titleST.kill();
+
+      target.innerHTML = "";
+      const textEl = document.createElement("span");
+      textEl.className = "title-text";
+      target.appendChild(textEl);
+
+      const lines = splitLinesByRange(textEl, target.dataset.titleRaw);
+      if (!lines || !lines.length) return;
+
+      textEl.textContent = "";
+      lines.forEach((lineText) => {
+        const line = document.createElement("span");
+        line.className = "title-line";
+
+        const inner = document.createElement("span");
+        inner.className = "title-line-inner";
+        inner.textContent = lineText;
+
+        line.appendChild(inner);
+        textEl.appendChild(line);
+      });
 
       target.dataset.linesSplit = "1";
+      target.dataset.splitWidth = String(w);
 
-      // 3) animazione riga per riga
-      const lines = target.querySelectorAll(".title-line-inner");
-      gsap.from(lines, {
+      const lineInners = target.querySelectorAll(".title-line-inner");
+      target._titleTween = gsap.from(lineInners, {
         yPercent: 120,
         duration: 1.3,
         ease: "power2.inOut",
         stagger: 0.12,
-        scrollTrigger: {
-          trigger: wrap,
-          start: "top 80%",
-          toggleActions: "play none none"
-        }
+        paused: true
       });
-    });
 
-    // dopo aver creato linee e trigger, rinfresca
-    ScrollTrigger.refresh();
-  }
+      target._titleST = ScrollTrigger.create({
+        trigger: wrap,
+        start: "top 80%",
+        once: true,
+        onEnter: () => target._titleTween && target._titleTween.play()
+      });
+    }
 
-  function pickTarget(wrap) {
-    // Se la classe è sul titolo stesso (h1..h6, p)
-    if (wrap.matches(INNER_TEXT_TAGS)) return wrap;
+    function splitLinesByRange(containerEl, raw) {
+      containerEl.textContent = raw;
+      const node = containerEl.firstChild;
+      if (!node || node.nodeType !== Node.TEXT_NODE) return [raw];
 
-    // Se la classe è su un wrapper (div ecc.), prendi il primo titolo/testo dentro
-    const inside = wrap.querySelector(INNER_TEXT_TAGS);
-    if (inside) return inside;
+      const range = document.createRange();
 
-    // fallback: usa wrap (solo se davvero non c’è altro)
-    return wrap;
-  }
+      const wordStarts = [];
+      const re = /\S+/g;
+      let m;
+      while ((m = re.exec(raw))) wordStarts.push(m.index);
+      if (!wordStarts.length) return [raw];
 
-  function splitLines(el) {
-    const words = el.innerText.split(" ");
-    el.innerHTML = "";
+      const lineStarts = [0];
+      let currentTop = getCharTop(range, node, wordStarts[0]);
+      if (currentTop == null) return [raw];
 
-    // crea parole misurabili
-    const wordSpans = words.map((word) => {
-      const s = document.createElement("span");
-      s.textContent = word;
-      s.style.display = "inline-block";
-      s.style.marginRight = "0.28em"; // spazio tra parole
-      el.appendChild(s);
-      return s;
-    });
+      for (let i = 1; i < wordStarts.length; i++) {
+        const idx = wordStarts[i];
+        const top = getCharTop(range, node, idx);
+        if (top == null) continue;
 
-    // raggruppa per linea usando rect.top
-    const lines = [];
-    let currentTop = null;
-    let current = [];
-
-    for (const span of wordSpans) {
-      const rect = span.getClientRects()[0];
-      if (!rect) continue;
-
-      if (currentTop === null) currentTop = rect.top;
-
-      if (Math.abs(rect.top - currentTop) > 2) {
-        lines.push(current);
-        current = [];
-        currentTop = rect.top;
+        if (Math.abs(top - currentTop) > TOP_TOLERANCE) {
+          lineStarts.push(idx);
+          currentTop = top;
+        }
       }
-      current.push(span);
+
+      const lines = [];
+      for (let i = 0; i < lineStarts.length; i++) {
+        const start = lineStarts[i];
+        const end = (i + 1 < lineStarts.length) ? lineStarts[i + 1] : raw.length;
+        const chunk = raw.slice(start, end).trimEnd();
+        if (chunk) lines.push(chunk);
+      }
+
+      return lines.length ? lines : [raw];
     }
-    if (current.length) lines.push(current);
 
-    // se per qualche motivo non è misurabile (rect vuoti), ripristina testo e stop
-    if (!lines.length) {
-      el.textContent = words.join(" ");
-      return 0;
+    function getCharTop(range, textNode, index) {
+      const len = textNode.length;
+      if (index < 0 || index >= len) return null;
+
+      let i = index;
+      while (i < len && /\s/.test(textNode.data[i])) i++;
+      if (i >= len) return null;
+
+      range.setStart(textNode, i);
+      range.setEnd(textNode, i + 1);
+
+      const rect = range.getBoundingClientRect();
+      if (!rect || !isFinite(rect.top) || rect.height === 0) return null;
+      return rect.top;
     }
 
-    // ricostruisci DOM per righe
-    el.innerHTML = "";
-    lines.forEach((wordsInLine) => {
-      // niente spazio a fine riga
-      const last = wordsInLine[wordsInLine.length - 1];
-      if (last) last.style.marginRight = "0";
+    function ensureObservers(wrap, target) {
+      if (target._titleRO) return;
 
-      const line = document.createElement("span");
-      line.className = "title-line";
+      let t = null;
+      const schedule = () => {
+        clearTimeout(t);
+        t = setTimeout(() => {
+          buildOrRebuild(wrap, target);
+          if (window.ScrollTrigger) ScrollTrigger.refresh();
+        }, RESIZE_DEBOUNCE);
+      };
 
-      const inner = document.createElement("span");
-      inner.className = "title-line-inner";
+      if (window.ResizeObserver) {
+        target._titleRO = new ResizeObserver(schedule);
+        target._titleRO.observe(target);
+      } else {
+        window.addEventListener("resize", schedule);
+        target._titleRO = { disconnect() {} };
+      }
+    }
 
-      wordsInLine.forEach((w) => inner.appendChild(w));
+    // qui basta chiamare una volta, perché siamo già dentro al load
+    initTitleLineAnim();
 
-      line.appendChild(inner);
-      el.appendChild(line);
-    });
-
-    return lines.length;
-  }
-
-  // init in 3 momenti: DOM, load, fonts ready (per misure corrette)
-  document.addEventListener("DOMContentLoaded", initTitleLineAnim);
-  window.addEventListener("load", initTitleLineAnim);
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(initTitleLineAnim);
-  }
-
-  // se cambi breakpoint / resize, meglio ricreare (qui: refresh semplice)
-  window.addEventListener("resize", () => {
-    if (window.ScrollTrigger) ScrollTrigger.refresh();
-  });
-})();
+    // opzionale: se vuoi comunque considerare font swap dopo load
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(initTitleLineAnim);
+    }
+  })();
+});
