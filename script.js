@@ -1,10 +1,21 @@
-//1.6.19
+//1.6.20
 
 
 
 
 
-
+let lenis = new Lenis({
+  lerp: 0.1,
+  wheelMultiplier: 0.7,
+  gestureOrientation: "vertical",
+  normalizeWheel: false,
+  smoothTouch: false,
+});
+function raf(time) {
+  lenis.raf(time);
+  requestAnimationFrame(raf);
+}
+requestAnimationFrame(raf);
 
 
 
