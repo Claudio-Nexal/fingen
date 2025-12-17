@@ -1,4 +1,4 @@
-//1.6.9
+//1.6.10
 
 // Lenis
 document.addEventListener("DOMContentLoaded", () => {
@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const cfg = [
     { sel: ".numbers-100",  from: 100 },
     { sel: ".numbers-1000", from: 1000 },
-    { sel: ".number-high",  from: 200000 },
+    { sel: ".numbers-high",  from: 200000 },
   ];
 
   const hasST = !!window.ScrollTrigger;
