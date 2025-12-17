@@ -1,11 +1,11 @@
-/* 1.2.16 */
+/* 1.2.17 */
 
 html, body{
   overflow: hidden;
 }
 
 *{
-  font-family: Source Serif 4;
+  font-family: "Source Serif 4", serif;
 }
 
 
