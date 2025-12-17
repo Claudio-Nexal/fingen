@@ -1,130 +1,61 @@
-//1.6.17
+//1.6.18
 
 
 // Lenis
 document.addEventListener("DOMContentLoaded", () => {
-  window.lenis = new Lenis({
-    duration: 1.2,
-    smooth: true,
-    lerp: 0.5
-  });
+  const lenis = window.lenis;
+  if (!lenis) return;
 
-  // ✅ sync ScrollTrigger (se presente)
-  if (window.ScrollTrigger) {
-    gsap.registerPlugin(ScrollTrigger);
-    window.lenis.on("scroll", ScrollTrigger.update);
-  }
-
-  // usa SOLO GSAP ticker (niente RAF separato)
-  gsap.ticker.lagSmoothing(0);
-  gsap.ticker.add((time) => {
-    window.lenis.raf(time * 1000);
-  });
-
-  // ✅ helper per ricalcolare limiti scroll + trigger
+  // evita refresh a raffica
+  let t = null;
   const refreshAll = () => {
-    window.lenis?.resize?.();
-    window.ScrollTrigger?.refresh?.(true);
+    clearTimeout(t);
+    t = setTimeout(() => {
+      lenis.resize?.();
+      window.ScrollTrigger?.refresh?.(true);
+    }, 100);
   };
 
-  // ✅ ricalcolo quando tutto è davvero “stabile”
+  // 1) quando finisce di caricare tutto
   window.addEventListener("load", refreshAll);
   document.fonts?.ready?.then(refreshAll);
-  window.addEventListener("resize", refreshAll);
 
-  // ✅ extra safety per pagine molto lunghe / immagini lazy
-  setTimeout(refreshAll, 500);
+  // 2) quando cambiano le dimensioni del contenuto (pagine lunghe / immagini / split / dropdown)
+  const root =
+    document.querySelector(".page-layer") ||
+    document.querySelector(".content-container") ||
+    document.body;
+
+  if (window.ResizeObserver && root) {
+    const ro = new ResizeObserver(refreshAll);
+    ro.observe(root);
+  } else {
+    window.addEventListener("resize", refreshAll);
+  }
+
+  // 3) immagini che finiscono di caricarsi dopo (lazy, ecc.)
+  document.querySelectorAll("img").forEach((img) => {
+    if (img.complete) return;
+    img.addEventListener("load", refreshAll, { once: true });
+    img.addEventListener("error", refreshAll, { once: true });
+  });
+
+  // 4) se qualche tuo script chiama ScrollTrigger.refresh(), assicurati che aggiorni anche Lenis
+  if (window.ScrollTrigger && !ScrollTrigger.__lenisPatched) {
+    ScrollTrigger.__lenisPatched = true;
+    const _refresh = ScrollTrigger.refresh;
+    ScrollTrigger.refresh = function (...args) {
+      lenis.resize?.();
+      return _refresh.apply(this, args);
+    };
+  }
 });
 
-  
-//countdown
-document.addEventListener("DOMContentLoaded", () => {
-  if (!window.gsap) return;
 
-  const hasST = !!window.ScrollTrigger;
-  if (hasST) gsap.registerPlugin(ScrollTrigger);
 
-  function parseCounterText(text) {
-    const s = (text || "").trim();
 
-    let first = -1, last = -1;
-    for (let i = 0; i < s.length; i++) if (/\d/.test(s[i])) { first = i; break; }
-    for (let i = s.length - 1; i >= 0; i--) if (/\d/.test(s[i])) { last = i; break; }
-    if (first === -1 || last === -1) return null;
 
-    const prefix = s.slice(0, first);
-    const suffix = s.slice(last + 1);
-    const rawNum = s.slice(first, last + 1);
 
-    const digitsOnly = rawNum.replace(/[^\d]/g, "");
-    if (!digitsOnly) return null;
-
-    const to = parseInt(digitsOnly, 10);
-    const useItFormat = rawNum.includes(".");
-
-    return { prefix, suffix, to, useItFormat };
-  }
-
-  function fmt(n, it) {
-    n = Math.round(n);
-    return it ? n.toLocaleString("it-IT") : String(n);
-  }
-
-  function getFrom(el, to) {
-    if (el.classList.contains("numbers-1000")) return 1000;
-    if (el.classList.contains("numbers-100")) return 100;
-
-    // ✅ la regola che ti serve:
-    // numbers-high: se target è piccolo (es. 4 o 2) parti da 100, altrimenti da 200000
-    if (el.classList.contains("numbers-high")) return (to <= 100 ? 100 : 200000);
-
-    // fallback
-    return 100;
-  }
-
-  function setup(el) {
-    const parsed = parseCounterText(el.textContent);
-    if (!parsed || !Number.isFinite(parsed.to)) return;
-
-    const { prefix, suffix, to, useItFormat } = parsed;
-    const from = getFrom(el, to);
-
-    const obj = { val: from };
-    el.textContent = `${prefix}${fmt(from, useItFormat)}${suffix}`;
-
-    const tween = gsap.to(obj, {
-      val: to,
-      duration: 5,
-      ease: "power3.out",
-      snap: { val: 1 },
-      paused: true,
-      onUpdate: () => (el.textContent = `${prefix}${fmt(obj.val, useItFormat)}${suffix}`),
-    });
-
-    if (hasST) {
-      ScrollTrigger.create({
-        trigger: el,
-        start: "top 85%",
-        once: true,
-        onEnter: () => tween.play(),
-      });
-    } else {
-      const io = new IntersectionObserver((entries, obs) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          obs.unobserve(entry.target);
-          tween.play();
-        });
-      }, { threshold: 0.25 });
-      io.observe(el);
-    }
-  }
-
-  // prendi tutti i counter (con una delle classi)
-  document
-    .querySelectorAll(".numbers-100, .numbers-1000, .numbers-high")
-    .forEach(setup);
-});
 
 
 
