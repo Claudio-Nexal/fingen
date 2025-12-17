@@ -484,6 +484,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 //immagini in parallasse
 window.addEventListener("load", () => {
+  // Desktop-only: niente animazione sotto 992px (Webflow tablet/mobile)
+  if (window.matchMedia("(max-width: 991px)").matches) return;
+  
   if (!window.gsap || !window.ScrollTrigger) return;
   gsap.registerPlugin(ScrollTrigger);
 
