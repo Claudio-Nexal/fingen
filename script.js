@@ -1,3 +1,5 @@
+//1.1
+
 // Lenis
 document.addEventListener("DOMContentLoaded", () => {
   window.lenis = new Lenis({
@@ -26,31 +28,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!toggle || !link || !icon) return;
 
-    // 1) Clic sul testo = vai al link, NON aprire dropdown
+    // CLICK sul testo: naviga (blocca Webflow dropdown)
     link.addEventListener("click", (e) => {
-      e.stopPropagation(); // blocca Webflow toggle
-      // lascia navigare normalmente
-    });
+      // consenti comportamenti standard (nuova tab, ecc.)
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || link.target === "_blank") return;
 
-    // 2) Enter/Space sul link = vai al link, NON aprire dropdown
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      window.location.assign(link.href);
+    }, true); // <-- capture (fondamentale)
+
+    // ENTER/SPACE sul testo: naviga
     link.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.stopPropagation();
-      }
-    });
+      if (e.key !== "Enter" && e.key !== " ") return;
 
-    // 3) Clic sul toggle ma NON sull’icona: non aprire
-    // (copre anche click sul padding della toggle)
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      window.location.assign(link.href);
+    }, true);
+
+    // CLICK sulla toggle ma NON sulla freccia: non aprire il dropdown
     toggle.addEventListener("click", (e) => {
       const clickedIcon = e.target.closest(".w-icon-dropdown-toggle");
       if (!clickedIcon) {
-        e.stopPropagation();
         e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
       }
     }, true);
   });
 });
-
 
 
 
