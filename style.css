@@ -43,7 +43,7 @@ html, body{
   transform: scaleX(1);
 }
 
-/* opzionale: in uscita “chiude” tornando verso sinistra (non verso il centro) */
+/* opzionale: in uscita “chiude” tornando verso destra (non verso il centro) */
 .nav-link-navbar:not(:hover)::after{
   transform-origin: right center;
 }
@@ -121,6 +121,11 @@ a.link-menu-footer::after{
 a.link-menu-footer:hover::after,
 a.link-menu-footer:focus-visible::after{
   transform: scaleX(1);
+}
+
+/* opzionale: in uscita “chiude” tornando verso destra (non verso il centro) */
+a.link-menu-footer:not(:hover)::after{
+  transform-origin: right center;
 }
 
 
