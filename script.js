@@ -560,8 +560,8 @@ window.addEventListener("load", () => {
 
       const lineInners = target.querySelectorAll(".title-line-inner");
       target._titleTween = gsap.from(lineInners, {
-        yPercent: 120,
-        duration: 1.3,
+        yPercent: 130,
+        duration: 1.2,
         ease: "power2.inOut",
         stagger: 0.12,
         paused: true
