@@ -1,4 +1,4 @@
-//1.6.8
+//1.6.9
 
 // Lenis
 document.addEventListener("DOMContentLoaded", () => {
@@ -19,69 +19,66 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-// counter inverso: parte solo quando l'elemento entra in viewport (una volta)
+// counter inverso: mantiene prefisso/suffisso (es: "+1", "1+", "+ 1", "€1", "1k")
 document.addEventListener("DOMContentLoaded", () => {
   if (!window.gsap) return;
 
-  const els = document.querySelectorAll(".number-of-numbers");
-  if (!els.length) return;
+  const cfg = [
+    { sel: ".numbers-100",  from: 100 },
+    { sel: ".numbers-1000", from: 1000 },
+    { sel: ".number-high",  from: 200000 },
+  ];
 
-  // Se hai ScrollTrigger, usa quello (più preciso)
-  if (window.ScrollTrigger) {
-    gsap.registerPlugin(ScrollTrigger);
+  const hasST = !!window.ScrollTrigger;
+  if (hasST) gsap.registerPlugin(ScrollTrigger);
 
-    els.forEach((el) => {
-      const to = parseInt((el.textContent || "").trim(), 10);
-      if (!Number.isFinite(to)) return;
+  function parseText(txt) {
+    const s = (txt || "").trim();
+    const m = s.match(/^(\D*)(-?\d+)(\D*)$/); // prefisso, numero, suffisso
+    if (!m) return null;
+    return { prefix: m[1] || "", num: parseInt(m[2], 10), suffix: m[3] || "" };
+  }
 
-      el.textContent = "100";
+  function setup(el, from) {
+    const parsed = parseText(el.textContent);
+    if (!parsed || !Number.isFinite(parsed.num)) return;
 
-      const obj = { val: 100 };
-      const tween = gsap.to(obj, {
-        val: to,
-        duration: 5,
-        ease: "power3.out",
-        snap: { val: 1 },
-        paused: true,
-        onUpdate: () => (el.textContent = String(Math.round(obj.val))),
-      });
+    const { prefix, num: to, suffix } = parsed;
 
+    const obj = { val: from };
+    el.textContent = `${prefix}${from}${suffix}`;
+
+    const tween = gsap.to(obj, {
+      val: to,
+      duration: 5,
+      ease: "power3.out",
+      snap: { val: 1 },
+      paused: true,
+      onUpdate: () => (el.textContent = `${prefix}${Math.round(obj.val)}${suffix}`),
+    });
+
+    if (hasST) {
       ScrollTrigger.create({
         trigger: el,
         start: "top 85%",
         once: true,
         onEnter: () => tween.play(),
       });
-    });
-
-    return;
+    } else {
+      const io = new IntersectionObserver((entries, obs) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          obs.unobserve(entry.target);
+          tween.play();
+        });
+      }, { threshold: 0.25 });
+      io.observe(el);
+    }
   }
 
-  // Fallback senza ScrollTrigger: IntersectionObserver
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (!entry.isIntersecting) return;
-
-      const el = entry.target;
-      io.unobserve(el);
-
-      const to = parseInt((el.textContent || "").trim(), 10);
-      if (!Number.isFinite(to)) return;
-
-      el.textContent = "100";
-
-      const obj = { val: 100 };
-      gsap.to(obj, {
-        val: to,
-        duration: 5,
-        ease: "power3.out",
-        snap: { val: 1 },
-        onUpdate: () => (el.textContent = String(Math.round(obj.val))),
-      });
-    });
-  }, { threshold: 0.25 });
-
-  els.forEach((el) => io.observe(el));
+  cfg.forEach(({ sel, from }) => {
+    document.querySelectorAll(sel).forEach((el) => setup(el, from));
+  });
 });
 
 
