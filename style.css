@@ -36,6 +36,11 @@ body.no-scroll {
   touch-action: none;
 }
 
+.w-dropdown-link.w--current{
+  color: #30344f;
+  font-weight: bold;
+}
+
 
 
 html, body{
