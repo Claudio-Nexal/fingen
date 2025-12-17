@@ -1,4 +1,4 @@
-//1.6.28
+//1.6.29
 
 
 
@@ -573,18 +573,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-document.addEventListener("DOMContentLoaded", () => {
-  let lenis = new Lenis({
-    lerp: 0.1,
-    wheelMultiplier: 0.7,
-    gestureOrientation: "vertical",
-    normalizeWheel: false,
-    smoothTouch: false,
-  });
-  function raf(time) {
-    lenis.raf(time);
-    requestAnimationFrame(raf);
-  }
+let lenis = new Lenis({
+  lerp: 0.1,
+  wheelMultiplier: 0.7,
+  gestureOrientation: "vertical",
+  normalizeWheel: false,
+  smoothTouch: false,
+});
+function raf(time) {
+  lenis.raf(time);
   requestAnimationFrame(raf);
-})
+}
+requestAnimationFrame(raf);
 
