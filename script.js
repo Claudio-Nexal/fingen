@@ -1,6 +1,7 @@
-//1.6.16
+//1.6.17
 
 
+// Lenis
 // Lenis
 document.addEventListener("DOMContentLoaded", () => {
   window.lenis = new Lenis({
@@ -9,11 +10,31 @@ document.addEventListener("DOMContentLoaded", () => {
     lerp: 0.5
   });
 
+  // ✅ sync ScrollTrigger (se presente)
+  if (window.ScrollTrigger) {
+    gsap.registerPlugin(ScrollTrigger);
+    window.lenis.on("scroll", ScrollTrigger.update);
+  }
+
   // usa SOLO GSAP ticker (niente RAF separato)
   gsap.ticker.lagSmoothing(0);
   gsap.ticker.add((time) => {
     window.lenis.raf(time * 1000);
   });
+
+  // ✅ helper per ricalcolare limiti scroll + trigger
+  const refreshAll = () => {
+    window.lenis?.resize?.();
+    window.ScrollTrigger?.refresh?.(true);
+  };
+
+  // ✅ ricalcolo quando tutto è davvero “stabile”
+  window.addEventListener("load", refreshAll);
+  document.fonts?.ready?.then(refreshAll);
+  window.addEventListener("resize", refreshAll);
+
+  // ✅ extra safety per pagine molto lunghe / immagini lazy
+  setTimeout(refreshAll, 500);
 });
 
   
