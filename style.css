@@ -1,4 +1,4 @@
-/* 1.2.1 */
+/* 1.2.2 */
 
 /* underline solo hover per nav-link-navbar */
 .nav-link-navbar{
@@ -39,9 +39,7 @@
   transition-delay: .12s;
 }
 
-/* se vuoi anche l'effetto "swap" (linea che cambia), abilita queste 2 righe:*/non
-.nav-link-navbar:hover::before{ transform: scaleX(0); }
-.nav-link-navbar::before{ transform-origin: bottom right; }
+
 
 
 
