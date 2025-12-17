@@ -1,4 +1,4 @@
-//1.6.21
+//1.6.22
 
 
 
@@ -422,49 +422,15 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.__MENU_ANIM_INIT__) return;
     window.__MENU_ANIM_INIT__ = true;
 
-    const lenis = window.lenis || null;
-
     let isOpen = false;
     let isAnimating = false;
     let tl = null;
-
-    // ----- Scroll lock (Lenis stop/start + hard lock input) -----
-    let savedScroll = 0;
 
     const preventKeys = new Set(["ArrowUp","ArrowDown","PageUp","PageDown","Home","End"," ","Spacebar"]);
 
     function onWheel(e) { e.preventDefault(); }
     function onTouch(e) { e.preventDefault(); }
     function onKeyDown(e) { if (preventKeys.has(e.key)) e.preventDefault(); }
-
-    function lockScroll() {
-      savedScroll = lenis ? (lenis.scroll ?? window.scrollY ?? 0) : (window.scrollY || window.pageYOffset || 0);
-
-      if (lenis) lenis.stop();
-
-      window.addEventListener("wheel", onWheel, { passive: false });
-      window.addEventListener("touchmove", onTouch, { passive: false });
-      window.addEventListener("keydown", onKeyDown, { passive: false });
-
-      document.documentElement.style.overflow = "hidden";
-      document.body.style.overflow = "hidden";
-    }
-
-    function unlockScroll() {
-      window.removeEventListener("wheel", onWheel);
-      window.removeEventListener("touchmove", onTouch);
-      window.removeEventListener("keydown", onKeyDown);
-
-      document.documentElement.style.overflow = "";
-      document.body.style.overflow = "";
-
-      if (lenis) {
-        lenis.start();
-        lenis.scrollTo(savedScroll, { immediate: true });
-      } else {
-        window.scrollTo(0, savedScroll);
-      }
-    }
 
     // ----- Stati iniziali -----
     gsap.set(menuOverlay, {
