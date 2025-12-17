@@ -1,45 +1,48 @@
-/* V 1.1.3 */
+/* 1.2.1 */
 
-/* Colore dei testi quando il menu è aperto */
-.navbar.navbar-is-open a,
-.navbar.navbar-is-open .nav-link,
-.navbar.navbar-is-open .w-nav-link,
-.navbar.navbar-is-open .w-dropdown-link {
-  color: #30344F !important;
-  transition: color .3s;
+/* underline solo hover per nav-link-navbar */
+.nav-link-navbar{
+  position: relative;
+  display: inline-block;
+  padding-bottom: 5px;
 }
 
-.navbar .nav-link,
-.navbar .w-nav-link,
-.navbar .w-dropdown-link {
-  transition: color .3s; /* transizione anche in chiusura */
+/* di base: niente underline */
+.nav-link-navbar::before,
+.nav-link-navbar::after{
+  content:'';
+  position:absolute;
+  left:0;
+  bottom:0;
+  width:100%;
+  height:2px;
+  transform: scaleX(0);
+  transition: transform .3s ease-out;
+  pointer-events: none;
 }
 
-/* Altri link */
-.navbar.navbar-is-open .link-3,
-.navbar.navbar-is-open .link-4 {
-  color: #30344F !important;
+/* colore underline = colore testo (chiuso: quello che hai già; aperto: #30344F) */
+.nav-link-navbar::before,
+.nav-link-navbar::after{
+  background-color: currentColor;
 }
 
-.menu-button-image {
-  width: 29px;
-  height: 18px;
+/* hover: appare */
+.nav-link-navbar:hover::after,
+.nav-link-navbar:focus-visible::after{
+  transform: scaleX(1);
+  transform-origin: bottom left;
 }
 
-.w-nav-overlay{
-  margin-top: -100px
+/* opzionale: micro-delay come nel tuo esempio */
+.nav-link-navbar::after{
+  transition-delay: .12s;
 }
 
-body.no-scroll {
-  overflow: hidden !important;
-  height: 100vh;
-  touch-action: none;
-}
+/* se vuoi anche l'effetto "swap" (linea che cambia), abilita queste 2 righe:*/non
+.nav-link-navbar:hover::before{ transform: scaleX(0); }
+.nav-link-navbar::before{ transform-origin: bottom right; }
 
-.w-dropdown-link.w--current{
-  color: #30344f;
-  font-weight: bold;
-}
 
 
 
