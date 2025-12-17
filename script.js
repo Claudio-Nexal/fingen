@@ -1,4 +1,4 @@
-//1.6.7
+//1.6.8
 
 // Lenis
 document.addEventListener("DOMContentLoaded", () => {
@@ -19,25 +19,69 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-// counter inverso: 100 -> numero già presente nel div
+// counter inverso: parte solo quando l'elemento entra in viewport (una volta)
 document.addEventListener("DOMContentLoaded", () => {
   if (!window.gsap) return;
 
-  document.querySelectorAll(".number-of-numbers").forEach((el) => {
-    const to = parseInt((el.textContent || "").trim(), 10);
-    if (!Number.isFinite(to)) return;
+  const els = document.querySelectorAll(".number-of-numbers");
+  if (!els.length) return;
 
-    const obj = { val: 100 };
-    el.textContent = "100";
+  // Se hai ScrollTrigger, usa quello (più preciso)
+  if (window.ScrollTrigger) {
+    gsap.registerPlugin(ScrollTrigger);
 
-    gsap.to(obj, {
-      val: to,
-      duration: 5,
-      ease: "power3.out",
-      snap: { val: 1 },
-      onUpdate: () => (el.textContent = String(Math.round(obj.val))),
+    els.forEach((el) => {
+      const to = parseInt((el.textContent || "").trim(), 10);
+      if (!Number.isFinite(to)) return;
+
+      el.textContent = "100";
+
+      const obj = { val: 100 };
+      const tween = gsap.to(obj, {
+        val: to,
+        duration: 5,
+        ease: "power3.out",
+        snap: { val: 1 },
+        paused: true,
+        onUpdate: () => (el.textContent = String(Math.round(obj.val))),
+      });
+
+      ScrollTrigger.create({
+        trigger: el,
+        start: "top 85%",
+        once: true,
+        onEnter: () => tween.play(),
+      });
     });
-  });
+
+    return;
+  }
+
+  // Fallback senza ScrollTrigger: IntersectionObserver
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+
+      const el = entry.target;
+      io.unobserve(el);
+
+      const to = parseInt((el.textContent || "").trim(), 10);
+      if (!Number.isFinite(to)) return;
+
+      el.textContent = "100";
+
+      const obj = { val: 100 };
+      gsap.to(obj, {
+        val: to,
+        duration: 5,
+        ease: "power3.out",
+        snap: { val: 1 },
+        onUpdate: () => (el.textContent = String(Math.round(obj.val))),
+      });
+    });
+  }, { threshold: 0.25 });
+
+  els.forEach((el) => io.observe(el));
 });
 
 
