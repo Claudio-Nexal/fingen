@@ -613,37 +613,39 @@ window.addEventListener("load", () => {
 
       const lineInners = target.querySelectorAll(".title-line-inner");
       if (!lineInners.length) return;
-
-      // ✅ se già completato in passato: NON creare trigger/tween, stato finale fisso
+      
+      // se già completato: stato finale e stop
       if (target.dataset.titleAnimDone === "1") {
         gsap.set(lineInners, { yPercent: 0, clearProps: "transform" });
         return;
       }
-
-      // tween + trigger (one-shot) e “fix” finale
-      const tween = gsap.from(lineInners, {
-        yPercent: 130,
+      
+      // ✅ stato iniziale “nascosto” (così non li vedi già fissati)
+      gsap.set(lineInners, { yPercent: 130 });
+      
+      // anima verso lo stato finale
+      const tween = gsap.to(lineInners, {
+        yPercent: 0,
         duration: 1.2,
         ease: "power2.inOut",
         stagger: 0.12,
         paused: true,
-        immediateRender: false,
-        overwrite: "auto",
+        overwrite: "auto"
       });
-
+      
       const st = ScrollTrigger.create({
         trigger: wrap,
         start: "top 80%",
         once: true,
-        onEnter: () => tween.play(),
+        onEnter: () => tween.play()
       });
-
+      
       tween.eventCallback("onComplete", () => {
         target.dataset.titleAnimDone = "1";
-        st.kill(); // non può più rientrare
-        gsap.set(lineInners, { yPercent: 0, clearProps: "transform" }); // stato finale “fisso”
+        st.kill();
+        gsap.set(lineInners, { yPercent: 0, clearProps: "transform" });
       });
-
+      
       target._titleTween = tween;
       target._titleST = st;
     }
