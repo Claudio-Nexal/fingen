@@ -1,4 +1,4 @@
-//1.6.6
+//1.6.7
 
 // Lenis
 document.addEventListener("DOMContentLoaded", () => {
@@ -32,8 +32,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     gsap.to(obj, {
       val: to,
-      duration: 3,
-      ease: "power2.inOut",
+      duration: 5,
+      ease: "power3.out",
       snap: { val: 1 },
       onUpdate: () => (el.textContent = String(Math.round(obj.val))),
     });
