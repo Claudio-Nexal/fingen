@@ -222,9 +222,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-
+//animazione menu
 (() => {
   function initMenu() {
+    if (!window.gsap) return;
+
     const container   = document.querySelector(".content-container");
     const menuOverlay = document.querySelector(".menu-overlay");
     const menuContent = document.querySelector(".menu-content");
@@ -237,6 +239,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const defaultBrandSrc = brandImg?.src;
 
     if (!container || !menuOverlay || !menuContent || (!openBtn && !closeBtn)) return;
+    if (window.__MENU_ANIM_INIT__) return;
+    window.__MENU_ANIM_INIT__ = true;
+
+    // Se c'è ScrollSmoother (GSAP), lo gestiamo. Se non c'è, nessun problema.
+    const smoother = window.ScrollSmoother?.get?.() || null;
+
+    // 1) crea/ottieni un wrapper interno da animare (così non tocchi l'elemento che lo scroll trasforma)
+    const pageLayer = ensurePageLayer(container);
 
     let isOpen = false;
     let isAnimating = false;
@@ -244,7 +254,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- scroll lock ---
     let scrollY = 0;
     function lockBodyScroll() {
-      scrollY = window.scrollY || window.pageYOffset || 0;
+      scrollY = smoother ? smoother.scrollTop() : (window.scrollY || window.pageYOffset || 0);
+
+      if (smoother) smoother.paused(true);
+
       document.body.style.position = "fixed";
       document.body.style.top = `-${scrollY}px`;
       document.body.style.left = "0";
@@ -259,11 +272,24 @@ document.addEventListener('DOMContentLoaded', function() {
       document.body.style.right = "";
       document.body.style.width = "";
       document.body.style.overflow = "";
-      window.scrollTo(0, scrollY);
+
+      if (smoother) {
+        smoother.paused(false);
+        smoother.scrollTop(scrollY);
+      } else {
+        window.scrollTo(0, scrollY);
+      }
     }
 
     // stato iniziale overlay
     gsap.set(menuOverlay, { pointerEvents: "none" });
+
+    // stato iniziale menu content + link (coerente con close)
+    gsap.set(menuContent, { rotation: -15, x: -100, y: -100, scale: 1.5, opacity: 0.25 });
+    gsap.set([".menu-link .w-dropdown", ".menu-link a"], { y: "120%", opacity: 0.25 });
+
+    // perf: evita blur / jitter
+    gsap.set([pageLayer, menuContent], { willChange: "transform" });
 
     function showOpenIcon() {
       if (openBtn)  gsap.set(openBtn,  { opacity: 1, x: 0, y: 0, rotation: 0, pointerEvents: "auto" });
@@ -274,10 +300,8 @@ document.addEventListener('DOMContentLoaded', function() {
       if (closeBtn) gsap.set(closeBtn, { opacity: 1, x: 0, y: 0, rotation: 0, pointerEvents: "auto" });
     }
 
-    // set icone coerenti con stato iniziale
     showOpenIcon();
 
-    // click separati
     if (openBtn) {
       openBtn.style.cursor = "pointer";
       openBtn.addEventListener("click", (e) => {
@@ -293,54 +317,55 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
 
+    // timeline unica = animazione più pulita e sincronizzata
+    let tl = null;
+
     function openMenu() {
       if (isAnimating || isOpen) return;
       isAnimating = true;
 
       lockBodyScroll();
       if (brandImg) brandImg.src = openBrandSrc;
-
       showCloseIcon();
+      gsap.set(menuOverlay, { pointerEvents: "auto" });
 
-      gsap.to(container, {
+      tl?.kill();
+      tl = gsap.timeline({
+        defaults: { duration: 1.25, ease: "power4.inOut" },
+        onComplete: () => {
+          isOpen = true;
+          isAnimating = false;
+        }
+      });
+
+      tl.to(pageLayer, {
         rotation: 10,
         x: 300,
         y: 450,
         scale: 1.5,
-        duration: 1.25,
-        ease: "power4.inOut",
-      });
+        overwrite: "auto"
+      }, 0);
 
-      gsap.to(menuContent, {
+      tl.to(menuContent, {
         rotation: 0,
         x: 0,
         y: 0,
         scale: 1,
         opacity: 1,
-        duration: 1.25,
-        ease: "power4.inOut",
-      });
+        overwrite: "auto"
+      }, 0);
 
-      gsap.to([".menu-link .w-dropdown", ".menu-link a"], {
+      tl.to(menuOverlay, {
+        clipPath: "polygon(0% 0%, 100% 0%, 100% 175%, 0% 100%)"
+      }, 0);
+
+      tl.to([".menu-link .w-dropdown", ".menu-link a"], {
         y: "0%",
         opacity: 1,
-        delay: 0.75,
         duration: 1,
-        stagger: 0.1,
         ease: "power3.out",
-      });
-
-      gsap.set(menuOverlay, { pointerEvents: "auto" });
-
-      gsap.to(menuOverlay, {
-        clipPath: "polygon(0% 0%, 100% 0%, 100% 175%, 0% 100%)",
-        duration: 1.25,
-        ease: "power4.inOut",
-        onComplete: () => {
-          isOpen = true;
-          isAnimating = false;
-        },
-      });
+        stagger: 0.1
+      }, 0.75);
     }
 
     function closeMenu() {
@@ -349,29 +374,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
       showOpenIcon();
 
-      gsap.to(container, {
-        rotation: 0,
-        x: 0,
-        y: 0,
-        scale: 1,
-        duration: 1.25,
-        ease: "power4.inOut",
-      });
-
-      gsap.to(menuContent, {
-        rotation: -15,
-        x: -100,
-        y: -100,
-        scale: 1.5,
-        opacity: 0.25,
-        duration: 1.25,
-        ease: "power4.inOut",
-      });
-
-      gsap.to(menuOverlay, {
-        clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)",
-        duration: 1.25,
-        ease: "power4.inOut",
+      tl?.kill();
+      tl = gsap.timeline({
+        defaults: { duration: 1.25, ease: "power4.inOut" },
         onComplete: () => {
           isOpen = false;
           isAnimating = false;
@@ -381,8 +386,48 @@ document.addEventListener('DOMContentLoaded', function() {
 
           if (brandImg) brandImg.src = defaultBrandSrc;
           unlockBodyScroll();
-        },
+        }
       });
+
+      tl.to(pageLayer, {
+        rotation: 0,
+        x: 0,
+        y: 0,
+        scale: 1,
+        overwrite: "auto"
+      }, 0);
+
+      tl.to(menuContent, {
+        rotation: -15,
+        x: -100,
+        y: -100,
+        scale: 1.5,
+        opacity: 0.25,
+        overwrite: "auto"
+      }, 0);
+
+      tl.to(menuOverlay, {
+        clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)"
+      }, 0);
+    }
+
+    function ensurePageLayer(containerEl) {
+      // se esiste già, usalo
+      const existing = containerEl.querySelector(":scope > .page-layer");
+      if (existing) return existing;
+
+      // crea wrapper e sposta dentro tutti i figli (escludendo eventuali overlay/menu se fossero dentro)
+      const layer = document.createElement("div");
+      layer.className = "page-layer";
+
+      const children = Array.from(containerEl.children);
+      children.forEach((child) => {
+        if (child.classList.contains("menu-overlay") || child.classList.contains("menu-content")) return;
+        layer.appendChild(child);
+      });
+
+      containerEl.appendChild(layer);
+      return layer;
     }
   }
 
@@ -402,7 +447,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-
+//immagini in parallasse
 window.addEventListener("load", () => {
   if (!window.gsap || !window.ScrollTrigger) return;
   gsap.registerPlugin(ScrollTrigger);
