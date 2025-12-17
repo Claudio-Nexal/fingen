@@ -1,4 +1,4 @@
-/* 1.2.21 */
+/* 1.2.22 */
 
 html, body{
   overflow: hidden;
@@ -13,15 +13,14 @@ html, body{
 
 /* MENU */
 
-/* underline solo hover per nav-link-navbar */
+/* underline (base + hover) per nav-link-navbar */
 .nav-link-navbar{
   position: relative;
   display: inline-block;
-  padding-bottom: 5px;
+  padding-bottom: 2px;
 }
 
-/* di base: niente underline */
-
+.nav-link-navbar::before,
 .nav-link-navbar::after{
   content:'';
   position:absolute;
@@ -29,44 +28,52 @@ html, body{
   bottom:0;
   width:100%;
   height:2px;
-  background: #30344f;
+  background-color: currentColor;
   transform: scaleX(0);
-  transform-origin: left center;      /* 👈 cresce verso destra */
-  transition: transform .3s ease-out;
-  pointer-events: none;
+  pointer-events:none;
 }
 
-/* colore underline = colore testo (chiuso: quello che hai già; aperto: #30344F) */
-.nav-link-navbar::before,
+/* linea base (serve per w--current) */
+.nav-link-navbar::before{
+  transform-origin: left center;
+  transition: transform .3s ease-out .12s; /* torna dopo */
+}
+
+/* linea hover (entra da sinistra) */
 .nav-link-navbar::after{
-  background-color: currentColor;
+  transform-origin: left center;
+  transition: transform .3s ease-out;
+}
+
+/* hover: base si chiude verso destra, hover entra */
+.nav-link-navbar:hover::before,
+.nav-link-navbar:focus-visible::before{
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition-delay: 0s;
 }
 
 .nav-link-navbar:hover::after,
 .nav-link-navbar:focus-visible::after{
   transform: scaleX(1);
+  transition-delay: .12s; /* micro-delay */
 }
 
-/* opzionale: in uscita “chiude” tornando verso destra (non verso il centro) */
+/* mouseleave: hover si richiude verso destra */
 .nav-link-navbar:not(:hover)::after{
+  transform: scaleX(0);
   transform-origin: right center;
 }
 
-/* opzionale: micro-delay come nel tuo esempio */
-.nav-link-navbar::after{
-  transition-delay: .12s;
+/* link attivo: underline visibile di default (linea base) */
+.nav-link-navbar.w--current::before{
+  transform: scaleX(1);
+  transition-delay: 0s;
 }
 
-/* underline visibile di default sul link attivo */
+/* sull'attivo, la linea hover resta nascosta finché non hover */
 .nav-link-navbar.w--current::after{
-  transform: scaleX(1);
-  transform-origin: left center;
-  transition-delay: 0s; /* opzionale */
-}
-
-/* opzionale: anche in hover resta stabile */
-.nav-link-navbar.w--current:hover::after{
-  transform: scaleX(1);
+  transform: scaleX(0);
 }
 
 
