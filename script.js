@@ -1,4 +1,4 @@
-//1.6.3
+//1.6.4
 
 // Lenis
 document.addEventListener("DOMContentLoaded", () => {
@@ -15,6 +15,30 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+
+
+
+
+// counter inverso: 100 -> numero già presente nel div
+document.addEventListener("DOMContentLoaded", () => {
+  if (!window.gsap) return;
+
+  document.querySelectorAll(".number-of-numbers").forEach((el) => {
+    const to = parseInt((el.textContent || "").trim(), 10);
+    if (!Number.isFinite(to)) return;
+
+    const obj = { val: 100 };
+    el.textContent = "100";
+
+    gsap.to(obj, {
+      val: to,
+      duration: 1.2,
+      ease: "power2.out",
+      snap: { val: 1 },
+      onUpdate: () => (el.textContent = String(Math.round(obj.val))),
+    });
+  });
+});
 
 
 
