@@ -1,4 +1,4 @@
-/* 1.2.19 */
+/* 1.2.20 */
 
 html, body{
   overflow: hidden;
@@ -88,7 +88,10 @@ html, body{
   text-align: center !important;
 }
 
-
+.w-dropdown-link.w--current{
+  color: #30344f;
+  font-weight: bold;
+}
 
 
 
