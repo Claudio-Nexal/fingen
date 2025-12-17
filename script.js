@@ -1,5 +1,3 @@
-
-//Lenis
 // Lenis
 document.addEventListener("DOMContentLoaded", () => {
   window.lenis = new Lenis({
@@ -186,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-
+//animazioni cta + freccia
 document.addEventListener('DOMContentLoaded', function() {
   // Seleziona tutti i link con la classe 'text-link'
   const textLinks = document.querySelectorAll('.text-link');
@@ -527,8 +525,8 @@ if (!isFullwidth) {
 
 
 //animazioni titoli
+// animazioni titoli
 window.addEventListener("load", () => {
-  // animazioni titoli (split SOLO in righe, senza wrapper per parola)
   (() => {
     const WRAP_SELECTOR = ".title-animation";
     const INNER_TEXT_TAGS = "h1,h2,h3,h4,h5,h6,p";
@@ -557,6 +555,11 @@ window.addEventListener("load", () => {
       return wrap;
     }
 
+    function getLayoutWidth(el) {
+      // offsetWidth NON è influenzato da transform/scale
+      return el.offsetWidth || el.clientWidth || 0;
+    }
+
     function buildOrRebuild(wrap, target) {
       if (!target.dataset.titleRaw) {
         const raw = (target.innerText || "")
@@ -567,12 +570,23 @@ window.addEventListener("load", () => {
         target.dataset.titleRaw = raw;
       }
 
-      const w = Math.round(target.getBoundingClientRect().width);
-      if (target.dataset.linesSplit === "1" && Number(target.dataset.splitWidth || 0) === w) return;
+      const w = getLayoutWidth(target);
 
+      // evita rebuild inutili (su transform del menu non cambia)
+      if (target.dataset.linesSplit === "1" && Number(target.dataset.splitWidth || 0) === w) {
+        // se già animato, assicurati che resti “fisso”
+        if (target.dataset.titleAnimDone === "1") {
+          const doneLines = target.querySelectorAll(".title-line-inner");
+          if (doneLines.length) gsap.set(doneLines, { yPercent: 0, clearProps: "transform" });
+        }
+        return;
+      }
+
+      // kill vecchi
       if (target._titleTween) target._titleTween.kill();
       if (target._titleST) target._titleST.kill();
 
+      // rebuild markup
       target.innerHTML = "";
       const textEl = document.createElement("span");
       textEl.className = "title-text";
@@ -598,20 +612,40 @@ window.addEventListener("load", () => {
       target.dataset.splitWidth = String(w);
 
       const lineInners = target.querySelectorAll(".title-line-inner");
-      target._titleTween = gsap.from(lineInners, {
+      if (!lineInners.length) return;
+
+      // ✅ se già completato in passato: NON creare trigger/tween, stato finale fisso
+      if (target.dataset.titleAnimDone === "1") {
+        gsap.set(lineInners, { yPercent: 0, clearProps: "transform" });
+        return;
+      }
+
+      // tween + trigger (one-shot) e “fix” finale
+      const tween = gsap.from(lineInners, {
         yPercent: 130,
         duration: 1.2,
         ease: "power2.inOut",
         stagger: 0.12,
-        paused: true
+        paused: true,
+        immediateRender: false,
+        overwrite: "auto",
       });
 
-      target._titleST = ScrollTrigger.create({
+      const st = ScrollTrigger.create({
         trigger: wrap,
         start: "top 80%",
         once: true,
-        onEnter: () => target._titleTween && target._titleTween.play()
+        onEnter: () => tween.play(),
       });
+
+      tween.eventCallback("onComplete", () => {
+        target.dataset.titleAnimDone = "1";
+        st.kill(); // non può più rientrare
+        gsap.set(lineInners, { yPercent: 0, clearProps: "transform" }); // stato finale “fisso”
+      });
+
+      target._titleTween = tween;
+      target._titleST = st;
     }
 
     function splitLinesByRange(containerEl, raw) {
@@ -690,10 +724,8 @@ window.addEventListener("load", () => {
       }
     }
 
-    // qui basta chiamare una volta, perché siamo già dentro al load
     initTitleLineAnim();
 
-    // opzionale: se vuoi comunque considerare font swap dopo load
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(initTitleLineAnim);
     }
