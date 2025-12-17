@@ -17,8 +17,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
+//Fix dropdown menu
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".w-dropdown").forEach((dd) => {
+    const toggle = dd.querySelector(".w-dropdown-toggle");
+    const link   = dd.querySelector(".w-dropdown-toggle > a");
+    const icon   = dd.querySelector(".w-icon-dropdown-toggle");
 
+    if (!toggle || !link || !icon) return;
 
+    // 1) Clic sul testo = vai al link, NON aprire dropdown
+    link.addEventListener("click", (e) => {
+      e.stopPropagation(); // blocca Webflow toggle
+      // lascia navigare normalmente
+    });
+
+    // 2) Enter/Space sul link = vai al link, NON aprire dropdown
+    link.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.stopPropagation();
+      }
+    });
+
+    // 3) Clic sul toggle ma NON sull’icona: non aprire
+    // (copre anche click sul padding della toggle)
+    toggle.addEventListener("click", (e) => {
+      const clickedIcon = e.target.closest(".w-icon-dropdown-toggle");
+      if (!clickedIcon) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    }, true);
+  });
+});
 
 
 
