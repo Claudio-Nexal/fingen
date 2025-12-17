@@ -1,4 +1,4 @@
-//1.6.11
+//1.6.12
 
 // Lenis
 document.addEventListener("DOMContentLoaded", () => {
@@ -18,15 +18,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-
+//countdown
 document.addEventListener("DOMContentLoaded", () => {
   if (!window.gsap) return;
-
-  const cfg = [
-    { sel: ".numbers-100",  from: 100 },
-    { sel: ".numbers-1000", from: 1000 },
-    { sel: ".numbers-high", from: 200000 },
-  ];
 
   const hasST = !!window.ScrollTrigger;
   if (hasST) gsap.registerPlugin(ScrollTrigger);
@@ -34,21 +28,20 @@ document.addEventListener("DOMContentLoaded", () => {
   function parseCounterText(text) {
     const s = (text || "").trim();
 
-    // trova primo/ultimo digit nel testo
     let first = -1, last = -1;
     for (let i = 0; i < s.length; i++) if (/\d/.test(s[i])) { first = i; break; }
     for (let i = s.length - 1; i >= 0; i--) if (/\d/.test(s[i])) { last = i; break; }
     if (first === -1 || last === -1) return null;
 
-    const prefix = s.slice(0, first);      // es: "+"
-    const suffix = s.slice(last + 1);      // es: ""
-    const rawNum = s.slice(first, last+1); // es: "120.000"
+    const prefix = s.slice(0, first);
+    const suffix = s.slice(last + 1);
+    const rawNum = s.slice(first, last + 1);
 
-    const digitsOnly = rawNum.replace(/[^\d]/g, ""); // "120000"
+    const digitsOnly = rawNum.replace(/[^\d]/g, "");
     if (!digitsOnly) return null;
 
     const to = parseInt(digitsOnly, 10);
-    const useItFormat = rawNum.includes("."); // se aveva punti, mantieni formattazione it-IT
+    const useItFormat = rawNum.includes(".");
 
     return { prefix, suffix, to, useItFormat };
   }
@@ -58,11 +51,24 @@ document.addEventListener("DOMContentLoaded", () => {
     return it ? n.toLocaleString("it-IT") : String(n);
   }
 
-  function setup(el, from) {
+  function getFrom(el, to) {
+    if (el.classList.contains("numbers-1000")) return 1000;
+    if (el.classList.contains("numbers-100")) return 100;
+
+    // ✅ la regola che ti serve:
+    // numbers-high: se target è piccolo (es. 4 o 2) parti da 100, altrimenti da 200000
+    if (el.classList.contains("numbers-high")) return (to <= 100 ? 100 : 200000);
+
+    // fallback
+    return 100;
+  }
+
+  function setup(el) {
     const parsed = parseCounterText(el.textContent);
     if (!parsed || !Number.isFinite(parsed.to)) return;
 
     const { prefix, suffix, to, useItFormat } = parsed;
+    const from = getFrom(el, to);
 
     const obj = { val: from };
     el.textContent = `${prefix}${fmt(from, useItFormat)}${suffix}`;
@@ -95,9 +101,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  cfg.forEach(({ sel, from }) => {
-    document.querySelectorAll(sel).forEach((el) => setup(el, from));
-  });
+  // prendi tutti i counter (con una delle classi)
+  document
+    .querySelectorAll(".numbers-100, .numbers-1000, .numbers-high")
+    .forEach(setup);
 });
 
 
