@@ -1,4 +1,4 @@
-//1.4.2
+//1.5.1
 
 // Lenis
 document.addEventListener("DOMContentLoaded", () => {
@@ -261,26 +261,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // animazione footer desktop
 document.addEventListener("DOMContentLoaded", () => {
+  if (!window.gsap || !window.ScrollTrigger) return;
   gsap.registerPlugin(ScrollTrigger);
 
-  gsap.fromTo(
-    ".footer",
-    {
-      clipPath: "inset(100% 0% 0% 0%)",
-      opacity: 0,
-      // Imposta la posizione iniziale fuori schermo (come un "misterioso reveal")
-      transform: "translate3d(0, -50%, 0)"  // Footer parte più sotto
-    },
+  gsap.fromTo(".footer",
+    { clipPath: "inset(100% 0% 0% 0%)", autoAlpha: 0, yPercent: -50 },
     {
       clipPath: "inset(0% 0% 0% 0%)",
-      opacity: 1,
-      transform: "translate3d(0, 0%, 0)", // Footer arriva al suo posto
+      autoAlpha: 1,
+      yPercent: 0,
       ease: "power2.out",
       scrollTrigger: {
         trigger: ".footer-wrapper",
-        start: "top 100%",   // parte quando è vicino alla fine dello scroll
-        end: "top 50%",      // termina quando arriva a metà viewport
+        start: "top 100%",
+        end: "top 50%",
         scrub: true,
+        invalidateOnRefresh: true
       }
     }
   );
