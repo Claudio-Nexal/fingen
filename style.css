@@ -1,4 +1,4 @@
-/* 1.2.9 */
+/* 1.2.10 */
 
 html, body{
   overflow: hidden;
@@ -78,6 +78,10 @@ html, body{
 .w-dropdown-link{
   display: block;
   width: 100%;
+}
+
+.w-dropdown{
+  text-align: center !important;
 }
 
 
@@ -367,6 +371,7 @@ a.link-menu-footer:focus-visible::after{
   display: inline-block;
   will-change: transform;
   transition: color 0.5s;
+  text-align: center;
 }
 
 .menu-link a, .menu-link .w-dropdown {
