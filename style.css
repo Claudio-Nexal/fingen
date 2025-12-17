@@ -1,4 +1,13 @@
-/* 1.2.4 */
+/* 1.2.5 */
+
+html, body{
+  overflow: hidden;
+}
+
+
+
+
+/* MENU */
 
 /* underline solo hover per nav-link-navbar */
 .nav-link-navbar{
@@ -44,14 +53,31 @@
   transition-delay: .12s;
 }
 
-
-
-
-
-
-html, body{
+/* Base: tieni il list sempre "presente" ma nascosto */
+.w-dropdown-list{
+  display: block !important;          /* evita il display:none che impedisce le transizioni */
+  max-height: 0;
   overflow: hidden;
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+  transition: max-height .35s ease, opacity .25s ease, transform .25s ease;
+  will-change: max-height, opacity, transform;
 }
+
+/* Aperto */
+.w-dropdown-list.w--open{
+  max-height: 800px;                  /* metti un valore > dell’altezza massima del tuo menu */
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* opzionale: riduci animazioni per chi lo chiede */
+@media (prefers-reduced-motion: reduce){
+  .w-dropdown-list{ transition: none; }
+}
+
 
 
 
