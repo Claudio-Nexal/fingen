@@ -1,4 +1,4 @@
-//1.6.22
+//1.6.23
 
 
 
@@ -477,8 +477,6 @@ document.addEventListener('DOMContentLoaded', function() {
       if (isAnimating || isOpen) return;
       isAnimating = true;
 
-      lockScroll();
-
       if (brandImg) brandImg.src = openBrandSrc;
       showCloseIcon();
 
@@ -542,7 +540,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
           if (brandImg) brandImg.src = defaultBrandSrc;
 
-          unlockScroll();
         }
       });
 
