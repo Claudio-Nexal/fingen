@@ -2,7 +2,6 @@
 
 
 // Lenis
-// Lenis
 document.addEventListener("DOMContentLoaded", () => {
   window.lenis = new Lenis({
     duration: 1.2,
