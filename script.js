@@ -1,4 +1,4 @@
-//1.6.10
+//1.6.11
 
 // Lenis
 document.addEventListener("DOMContentLoaded", () => {
@@ -19,34 +19,53 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-// counter inverso: mantiene prefisso/suffisso (es: "+1", "1+", "+ 1", "€1", "1k")
 document.addEventListener("DOMContentLoaded", () => {
   if (!window.gsap) return;
 
   const cfg = [
     { sel: ".numbers-100",  from: 100 },
     { sel: ".numbers-1000", from: 1000 },
-    { sel: ".numbers-high",  from: 200000 },
+    { sel: ".numbers-high", from: 200000 },
   ];
 
   const hasST = !!window.ScrollTrigger;
   if (hasST) gsap.registerPlugin(ScrollTrigger);
 
-  function parseText(txt) {
-    const s = (txt || "").trim();
-    const m = s.match(/^(\D*)(-?\d+)(\D*)$/); // prefisso, numero, suffisso
-    if (!m) return null;
-    return { prefix: m[1] || "", num: parseInt(m[2], 10), suffix: m[3] || "" };
+  function parseCounterText(text) {
+    const s = (text || "").trim();
+
+    // trova primo/ultimo digit nel testo
+    let first = -1, last = -1;
+    for (let i = 0; i < s.length; i++) if (/\d/.test(s[i])) { first = i; break; }
+    for (let i = s.length - 1; i >= 0; i--) if (/\d/.test(s[i])) { last = i; break; }
+    if (first === -1 || last === -1) return null;
+
+    const prefix = s.slice(0, first);      // es: "+"
+    const suffix = s.slice(last + 1);      // es: ""
+    const rawNum = s.slice(first, last+1); // es: "120.000"
+
+    const digitsOnly = rawNum.replace(/[^\d]/g, ""); // "120000"
+    if (!digitsOnly) return null;
+
+    const to = parseInt(digitsOnly, 10);
+    const useItFormat = rawNum.includes("."); // se aveva punti, mantieni formattazione it-IT
+
+    return { prefix, suffix, to, useItFormat };
+  }
+
+  function fmt(n, it) {
+    n = Math.round(n);
+    return it ? n.toLocaleString("it-IT") : String(n);
   }
 
   function setup(el, from) {
-    const parsed = parseText(el.textContent);
-    if (!parsed || !Number.isFinite(parsed.num)) return;
+    const parsed = parseCounterText(el.textContent);
+    if (!parsed || !Number.isFinite(parsed.to)) return;
 
-    const { prefix, num: to, suffix } = parsed;
+    const { prefix, suffix, to, useItFormat } = parsed;
 
     const obj = { val: from };
-    el.textContent = `${prefix}${from}${suffix}`;
+    el.textContent = `${prefix}${fmt(from, useItFormat)}${suffix}`;
 
     const tween = gsap.to(obj, {
       val: to,
@@ -54,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ease: "power3.out",
       snap: { val: 1 },
       paused: true,
-      onUpdate: () => (el.textContent = `${prefix}${Math.round(obj.val)}${suffix}`),
+      onUpdate: () => (el.textContent = `${prefix}${fmt(obj.val, useItFormat)}${suffix}`),
     });
 
     if (hasST) {
@@ -80,6 +99,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(sel).forEach((el) => setup(el, from));
   });
 });
+
+
+
 
 
 
