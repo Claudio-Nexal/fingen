@@ -1,4 +1,4 @@
-//1.8.1
+//1.8.2
 
 
 
@@ -453,28 +453,61 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 //animazioni cta + freccia
-document.addEventListener('DOMContentLoaded', function() {
-  // Seleziona tutti i link con la classe 'text-link'
-  const textLinks = document.querySelectorAll('.text-link');
-  
-  console.log(textLinks);
 
-  // Aggiungi l'evento hover a ogni link
-  textLinks.forEach(function(textLinks) {
+// CTA: anima UNA volta quando entra in viewport (poi resta solo hover normale)
+document.addEventListener("DOMContentLoaded", () => {
+  const links = document.querySelectorAll(".text-link");
+  if (!links.length) return;
 
-    // Aggiungi classe '.hovered' quando il mouse entra
-    textLinks.addEventListener('mouseenter', function() {
-      textLinks.classList.remove('hover-leave');
-      textLinks.classList.add('hovered');
+  // helper: avvia la stessa animazione dell'hover, ma una sola volta
+  function playOnce(link) {
+    if (link.dataset.introPlayed === "1") return;
+    link.dataset.introPlayed = "1";
+
+    // stato iniziale "come se uscita"
+    link.classList.remove("hovered");
+    link.classList.add("hover-leave");
+
+    // micro delay per assicurare che le classi vengano applicate
+    requestAnimationFrame(() => {
+      // entra (come mouseenter)
+      link.classList.remove("hover-leave");
+      link.classList.add("hovered");
+
+      // dopo la durata dell'animazione underline, torna allo stato base
+      // (così l'utente può hoverare normalmente)
+      setTimeout(() => {
+        link.classList.remove("hovered");
+        link.classList.add("hover-leave");
+      }, 750); // 0.3 + 0.3 + margine
+    });
+  }
+
+  // IntersectionObserver: trigger quando è visibile
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      playOnce(entry.target);
+      io.unobserve(entry.target); // una sola volta
+    });
+  }, { threshold: 0.35 });
+
+  links.forEach((link) => io.observe(link));
+
+  // Mantieni il tuo comportamento hover
+  links.forEach((link) => {
+    link.addEventListener("mouseenter", () => {
+      link.classList.remove("hover-leave");
+      link.classList.add("hovered");
     });
 
-    // Rimuovi la classe '.hovered' quando il mouse esce
-    textLinks.addEventListener('mouseleave', function() {
-      textLinks.classList.remove('hovered');
-      textLinks.classList.add('hover-leave');
+    link.addEventListener("mouseleave", () => {
+      link.classList.remove("hovered");
+      link.classList.add("hover-leave");
     });
   });
 });
+
 
 
 
