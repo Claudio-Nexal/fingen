@@ -1,4 +1,4 @@
-//1.7.2
+//1.8.1
 
 
 
@@ -451,6 +451,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
+
+//animazioni cta + freccia
+document.addEventListener('DOMContentLoaded', function() {
+  // Seleziona tutti i link con la classe 'text-link'
+  const textLinks = document.querySelectorAll('.text-link');
+  
+  console.log(textLinks);
+
+  // Aggiungi l'evento hover a ogni link
+  textLinks.forEach(function(textLinks) {
+
+    // Aggiungi classe '.hovered' quando il mouse entra
+    textLinks.addEventListener('mouseenter', function() {
+      textLinks.classList.remove('hover-leave');
+      textLinks.classList.add('hovered');
+    });
+
+    // Rimuovi la classe '.hovered' quando il mouse esce
+    textLinks.addEventListener('mouseleave', function() {
+      textLinks.classList.remove('hovered');
+      textLinks.classList.add('hover-leave');
+    });
+  });
+});
+
+
+
+
+
+
+
+
+
 // animazione footer desktop
 document.addEventListener("DOMContentLoaded", () => {
   if (!window.gsap || !window.ScrollTrigger) return;
@@ -484,29 +517,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-//animazioni cta + freccia
-document.addEventListener('DOMContentLoaded', function() {
-  // Seleziona tutti i link con la classe 'text-link'
-  const textLinks = document.querySelectorAll('.text-link');
-  
-  console.log(textLinks);
-
-  // Aggiungi l'evento hover a ogni link
-  textLinks.forEach(function(textLinks) {
-
-    // Aggiungi classe '.hovered' quando il mouse entra
-    textLinks.addEventListener('mouseenter', function() {
-      textLinks.classList.remove('hover-leave');
-      textLinks.classList.add('hovered');
-    });
-
-    // Rimuovi la classe '.hovered' quando il mouse esce
-    textLinks.addEventListener('mouseleave', function() {
-      textLinks.classList.remove('hovered');
-      textLinks.classList.add('hover-leave');
-    });
-  });
-});
 
 
 
