@@ -1,4 +1,4 @@
-//1.8.9
+//1.8.10
 
 
 
@@ -39,14 +39,18 @@ function playIntroOnce(link) {
 }
 
   // Trigger quando entra in viewport
+  const INTRO_DELAY = 180; // ms
+  
   const io = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (!entry.isIntersecting) return;
-      playIntroOnce(entry.target);
+  
+      setTimeout(() => playIntroOnce(entry.target), INTRO_DELAY);
+  
       io.unobserve(entry.target);
     });
   }, { threshold: 0.35 });
-
+  
   links.forEach((link) => io.observe(link));
 
   // Hover: identico a prima (ma ignorato durante intro)
