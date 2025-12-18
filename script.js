@@ -1,4 +1,4 @@
-//1.8.2
+//1.8.3
 
 
 
@@ -452,49 +452,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
+
+
+
+
 //animazioni cta + freccia
 
-// CTA: anima UNA volta quando entra in viewport (poi resta solo hover normale)
 document.addEventListener("DOMContentLoaded", () => {
   const links = document.querySelectorAll(".text-link");
   if (!links.length) return;
 
-  // helper: avvia la stessa animazione dell'hover, ma una sola volta
-  function playOnce(link) {
+  // ---- INTRO: una sola volta quando entra in viewport ----
+  function playIntroOnce(link) {
     if (link.dataset.introPlayed === "1") return;
     link.dataset.introPlayed = "1";
 
-    // stato iniziale "come se uscita"
-    link.classList.remove("hovered");
-    link.classList.add("hover-leave");
-
-    // micro delay per assicurare che le classi vengano applicate
+    // avvia sweep
     requestAnimationFrame(() => {
-      // entra (come mouseenter)
-      link.classList.remove("hover-leave");
-      link.classList.add("hovered");
+      link.classList.add("intro");
 
-      // dopo la durata dell'animazione underline, torna allo stato base
-      // (così l'utente può hoverare normalmente)
+      // finita la sweep (0.3s) -> reset istantaneo di ::after e rimuovi override
       setTimeout(() => {
-        link.classList.remove("hovered");
-        link.classList.add("hover-leave");
-      }, 750); // 0.3 + 0.3 + margine
+        link.classList.add("intro-reset");   // snap ::after a 0
+        link.classList.remove("intro");
+
+        // togli reset al frame successivo (così non “rompe” l’hover dopo)
+        requestAnimationFrame(() => {
+          link.classList.remove("intro-reset");
+        });
+      }, 320);
     });
   }
 
-  // IntersectionObserver: trigger quando è visibile
   const io = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (!entry.isIntersecting) return;
-      playOnce(entry.target);
-      io.unobserve(entry.target); // una sola volta
+      playIntroOnce(entry.target);
+      io.unobserve(entry.target);
     });
   }, { threshold: 0.35 });
 
-  links.forEach((link) => io.observe(link));
+  links.forEach((l) => io.observe(l));
 
-  // Mantieni il tuo comportamento hover
+  // ---- HOVER: identico a prima ----
   links.forEach((link) => {
     link.addEventListener("mouseenter", () => {
       link.classList.remove("hover-leave");
