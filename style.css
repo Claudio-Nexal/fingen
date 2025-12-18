@@ -1,4 +1,4 @@
-/* 1.3.11 */
+/* 1.3.12 */
 
 html, body{
   /*overflow: hidden;*/
@@ -443,24 +443,28 @@ a.link-menu-footer:not(:hover)::after{
 
 
 
-/* INTRO automatico: SOLO sweep L->R della ::after, mentre ::before resta fissa */
+/* INTRO: sweep L->R visibile (base nascosta, nessun reverse) */
 .text-link.intro .text-link-text::before{
-  transform: scaleX(1) !important;   /* base sempre visibile */
-  transition: none !important;       /* niente animazione della base */
-  transform-origin: bottom right;    /* irrilevante, ma coerente col tuo */
+  transform: scaleX(0) !important;   /* base OFF durante lo sweep */
+  transition: none !important;
 }
 
 .text-link.intro .text-link-text::after{
   transform-origin: bottom left !important;
-  transform: scaleX(1) !important;
+  transform: scaleX(1) !important;   /* sweep L->R */
   transition: transform .3s ease-out !important;
   transition-delay: 0s !important;
 }
 
-/* reset istantaneo SOLO della ::after (così non vedi il ritorno) */
-.text-link.intro-reset .text-link-text::after{
+/* SNAP finale: stato base istantaneo, senza animazioni */
+.text-link.intro-snap .text-link-text::before{
+  transform: scaleX(1) !important;   /* base ON istantaneo */
   transition: none !important;
-  transform: scaleX(0) !important;
+}
+
+.text-link.intro-snap .text-link-text::after{
+  transform: scaleX(0) !important;   /* hover line OFF istantaneo */
+  transition: none !important;
 }
 
 
