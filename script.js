@@ -1,4 +1,4 @@
-//1.8.4
+//1.8.6
 
 
 
@@ -496,13 +496,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Trigger quando entra in viewport (soglia bassa = più affidabile)
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (!entry.isIntersecting) return;
-      playIntroOnce(entry.target);
-      io.unobserve(entry.target);
+  links.forEach((link) => {
+    ScrollTrigger.create({
+      trigger: link,
+      start: "top 75%",
+      once: true,
+      onEnter: () => playIntroOnce(link),
     });
-  }, { threshold: 0.1, rootMargin: "0px 0px -10% 0px" });
+  });
 
   links.forEach((l) => io.observe(l));
 
