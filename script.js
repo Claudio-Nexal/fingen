@@ -1,9 +1,9 @@
-//1.6.32
+//1.7.1
 
 
 
 
-
+//Countdown
 document.addEventListener("DOMContentLoaded", () => {
   if (!window.gsap) return;
 
@@ -91,6 +91,14 @@ document.addEventListener("DOMContentLoaded", () => {
     .querySelectorAll(".numbers-100, .numbers-1000, .numbers-high")
     .forEach(setup);
 });
+
+
+
+
+
+
+
+
 
 
 
@@ -183,6 +191,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
+
+
+
+
+
 //Fix dropdown menu
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".w-dropdown-toggle").forEach((toggle) => {
@@ -227,6 +240,10 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   });
 });
+
+
+
+
 
 
 
@@ -289,6 +306,10 @@ window.addEventListener("load", () => {
 
   ScrollTrigger.refresh();
 });
+
+
+
+
 
 
 
@@ -488,7 +509,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 //animazione menu
-// animazione menu (CON lock Lenis)
 (() => {
   function initMenu() {
     if (!window.gsap) return;
@@ -655,6 +675,17 @@ document.addEventListener('DOMContentLoaded', function() {
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initMenu);
   else initMenu();
 })();
+
+
+
+
+
+
+
+
+
+
+
 
 
 
