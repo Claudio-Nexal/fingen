@@ -443,25 +443,22 @@ a.link-menu-footer:not(:hover)::after{
 
 
 
-/* INTRO automatico: SOLO sweep da sinistra a destra (visibile), senza alterare l’hover normale */
+/* INTRO automatico: SOLO sweep L->R della ::after, mentre ::before resta fissa */
 .text-link.intro .text-link-text::before{
-  transform: scaleX(0) !important;      /* nasconde la linea base durante l’intro */
-  transition: none !important;
+  transform: scaleX(1) !important;   /* base sempre visibile */
+  transition: none !important;       /* niente animazione della base */
+  transform-origin: bottom right;    /* irrilevante, ma coerente col tuo */
 }
 
 .text-link.intro .text-link-text::after{
   transform-origin: bottom left !important;
-  transform: scaleX(1) !important;      /* sweep L->R */
+  transform: scaleX(1) !important;
   transition: transform .3s ease-out !important;
-  transition-delay: 0s !important;      /* niente delay nell’intro */
+  transition-delay: 0s !important;
 }
 
-/* reset istantaneo (per evitare reverse/delay quando togliamo .intro) */
+/* reset istantaneo SOLO della ::after (così non vedi il ritorno) */
 .text-link.intro-reset .text-link-text::after{
-  transition: none !important;
-  transform: scaleX(0) !important;
-}
-.text-link.intro-reset .text-link-text::before{
   transition: none !important;
   transform: scaleX(0) !important;
 }
