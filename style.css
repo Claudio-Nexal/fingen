@@ -1,4 +1,4 @@
-/* 1.3.6 */
+/* 1.3.7 */
 
 html, body{
   /*overflow: hidden;*/
@@ -177,6 +177,15 @@ html, body{
 
 .w-dropdown{
   text-align: center !important;
+}
+
+.w-icon-dropdown-toggle{
+  margin: 0;
+  width: 100%;
+  top: 50%;
+  right: 0;
+  left: 85%;
+  display: inline;
 }
 
 
