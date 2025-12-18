@@ -1,4 +1,4 @@
-/* 1.3.3 */
+/* 1.3.4 */
 
 html, body{
   /*overflow: hidden;*/
@@ -8,20 +8,21 @@ html, body{
 
 
 /* MENU */
+/* =========================
+   NAV (link top-level)
+   - attivo: underline base visibile
+   - hover: animazione come già fai
+   ========================= */
 
-/* Applica l’underline al DIV interno .text-block-36 (non al link) */
-.dropdown-link.w-inline-block .text-block-36,
-.nav-link-navbar .text-block-36{
+/* underline (base + hover) per nav-link-navbar */
+.nav-link-navbar{
   position: relative;
   display: inline-block;
   padding-bottom: 2px;
 }
 
-/* pseudo underline */
-.dropdown-link.w-inline-block .text-block-36::before,
-.dropdown-link.w-inline-block .text-block-36::after,
-.nav-link-navbar .text-block-36::before,
-.nav-link-navbar .text-block-36::after{
+.nav-link-navbar::before,
+.nav-link-navbar::after{
   content:'';
   position:absolute;
   left:0;
@@ -33,22 +34,83 @@ html, body{
   pointer-events:none;
 }
 
-/* LINEA BASE: SOLO PER NAV (attivo) */
-.nav-link-navbar .text-block-36::before{
+/* linea base (serve per w--current) */
+.nav-link-navbar::before{
   transform-origin: left center;
   transition: transform .3s ease-out .12s;
 }
 
-/* LINEA HOVER: per entrambi */
-.nav-link-navbar .text-block-36::after,
+/* linea hover (entra da sinistra) */
+.nav-link-navbar::after{
+  transform-origin: left center;
+  transition: transform .3s ease-out;
+}
+
+/* hover: base si chiude verso destra, hover entra */
+.nav-link-navbar:hover::before,
+.nav-link-navbar:focus-visible::before{
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition-delay: 0s;
+}
+
+.nav-link-navbar:hover::after,
+.nav-link-navbar:focus-visible::after{
+  transform: scaleX(1);
+  transition-delay: .12s;
+}
+
+/* mouseleave: hover si richiude verso destra */
+.nav-link-navbar:not(:hover)::after{
+  transform: scaleX(0);
+  transform-origin: right center;
+}
+
+/* link attivo: underline visibile di default (linea base) */
+.nav-link-navbar.w--current::before{
+  transform: scaleX(1);
+  transition-delay: 0s;
+}
+
+/* sull'attivo, la linea hover resta nascosta finché non hover */
+.nav-link-navbar.w--current::after{
+  transform: scaleX(0);
+}
+
+
+/* =========================
+   DROPDOWN (link dentro menu)
+   - underline SOLO in hover (sul div .text-block-36)
+   - attivo: SOLO bold + colore (nessuna underline di base)
+   ========================= */
+
+.dropdown-link.w-inline-block .text-block-36{
+  position: relative;
+  display: inline-block;
+  padding-bottom: 2px;
+}
+
+/* pseudo underline per dropdown text */
+.dropdown-link.w-inline-block .text-block-36::before,
+.dropdown-link.w-inline-block .text-block-36::after{
+  content:'';
+  position:absolute;
+  left:0;
+  bottom:0;
+  width:100%;
+  height:2px;
+  background-color: currentColor;
+  transform: scaleX(0);
+  pointer-events:none;
+}
+
+/* per dropdown usiamo solo la linea hover (after) */
 .dropdown-link.w-inline-block .text-block-36::after{
   transform-origin: left center;
   transition: transform .3s ease-out;
 }
 
-/* hover/focus: entra la hover line */
-.nav-link-navbar:hover .text-block-36::after,
-.nav-link-navbar:focus-visible .text-block-36::after,
+/* hover/focus: entra underline */
 .dropdown-link.w-inline-block:hover .text-block-36::after,
 .dropdown-link.w-inline-block:focus-visible .text-block-36::after{
   transform: scaleX(1);
@@ -56,38 +118,27 @@ html, body{
 }
 
 /* mouseleave: richiude verso destra */
-.nav-link-navbar:not(:hover) .text-block-36::after,
 .dropdown-link.w-inline-block:not(:hover) .text-block-36::after{
   transform: scaleX(0);
   transform-origin: right center;
 }
 
-/* nav-link-navbar attivo: underline base visibile */
-.nav-link-navbar.w--current .text-block-36::before{
-  transform: scaleX(1);
-  transition-delay: 0s;
+/* dropdown attivo: SOLO bold (niente underline base) */
+.dropdown-link.w-inline-block.w--current .text-block-36{
+  color: #30344f;
+  font-weight: 700;
 }
 
-/* nav-link-navbar hover: base si chiude */
-.nav-link-navbar:hover .text-block-36::before,
-.nav-link-navbar:focus-visible .text-block-36::before{
-  transform: scaleX(0);
-  transform-origin: right center;
-  transition-delay: 0s;
-}
-
-/* dropdown attivo: MAI underline di base */
-.dropdown-link.w--current .text-block-36::before{
+/* forza: mai underline base/di default sul dropdown attivo */
+.dropdown-link.w-inline-block.w--current .text-block-36::before{
   transform: scaleX(0) !important;
   transition: none !important;
 }
 
-/* dropdown attivo: hover line resta nascosta finché non hover */
-.dropdown-link.w--current .text-block-36::after{
+/* (facoltativo) assicurati che anche l'hover line parta nascosta sull'attivo finché non hover */
+.dropdown-link.w-inline-block.w--current .text-block-36::after{
   transform: scaleX(0);
 }
-
-
 
 
 
@@ -116,11 +167,6 @@ html, body{
 
 .w-dropdown{
   text-align: center !important;
-}
-
-.w-dropdown-link.w--current{
-  color: #30344f;
-  font-weight: bold;
 }
 
 
