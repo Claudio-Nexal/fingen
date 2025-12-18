@@ -1,4 +1,4 @@
-//1.8.6
+//1.8.7
 
 
 
@@ -458,44 +458,48 @@ document.addEventListener("DOMContentLoaded", () => {
 
 //animazioni cta + freccia
 
+// CTA: intro una sola volta con GSAP ScrollTrigger + hover come prima
 document.addEventListener("DOMContentLoaded", () => {
+  if (!window.gsap || !window.ScrollTrigger) return;
+
+  gsap.registerPlugin(ScrollTrigger);
+
   const links = document.querySelectorAll(".text-link");
   if (!links.length) return;
 
   function playIntroOnce(link) {
     if (link.dataset.introPlayed === "1") return;
     link.dataset.introPlayed = "1";
+    link.dataset.introPlaying = "1";
 
-    // salva stato hover attuale (di solito hover-leave)
     const hadHovered = link.classList.contains("hovered");
     const hadLeave   = link.classList.contains("hover-leave");
 
     // durante intro: niente classi hover
     link.classList.remove("hovered", "hover-leave");
 
-    // 1) reset istantaneo della linea hover (::after) a 0
+    // reset istantaneo ::after a 0 (senza reverse)
     link.classList.add("intro-reset");
-    // forza reflow per “applicare” davvero lo stato prima di animare
-    void link.offsetWidth;
+    void link.offsetWidth; // force reflow
 
-    // 2) avvia animazione (solo sweep L->R)
+    // anima sweep L->R (solo ::after), poi reset e ripristina base
     link.classList.remove("intro-reset");
     link.classList.add("intro");
 
-    // 3) fine: snap back e ripristina stato base
     setTimeout(() => {
       link.classList.remove("intro");
       link.classList.add("intro-reset");   // snap ::after a 0
       void link.offsetWidth;
       link.classList.remove("intro-reset");
 
-      // ripristina stato hover pre-esistente (base)
       link.classList.toggle("hovered", hadHovered);
       link.classList.toggle("hover-leave", hadLeave || !hadHovered);
+
+      link.dataset.introPlaying = "0";
     }, 320);
   }
 
-  // Trigger quando entra in viewport (soglia bassa = più affidabile)
+  // Trigger quando è davvero “in vista”
   links.forEach((link) => {
     ScrollTrigger.create({
       trigger: link,
@@ -505,16 +509,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  links.forEach((l) => io.observe(l));
-
-  // Hover: identico al tuo
+  // Hover: identico a prima (ma ignorato durante intro)
   links.forEach((link) => {
     link.addEventListener("mouseenter", () => {
+      if (link.dataset.introPlaying === "1") return;
       link.classList.remove("hover-leave");
       link.classList.add("hovered");
     });
 
     link.addEventListener("mouseleave", () => {
+      if (link.dataset.introPlaying === "1") return;
       link.classList.remove("hovered");
       link.classList.add("hover-leave");
     });
