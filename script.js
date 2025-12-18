@@ -1,4 +1,4 @@
-//1.8.8
+//1.8.9
 
 
 
@@ -9,39 +9,34 @@ document.addEventListener("DOMContentLoaded", () => {
   const links = document.querySelectorAll(".text-link");
   if (!links.length) return;
 
-  function playIntroOnce(link) {
-    if (link.dataset.introPlayed === "1") return;
-    link.dataset.introPlayed = "1";
-    link.dataset.introPlaying = "1";
+function playIntroOnce(link) {
+  if (link.dataset.introPlayed === "1") return;
+  link.dataset.introPlayed = "1";
+  link.dataset.introPlaying = "1";
 
-    // stato base
-    link.classList.remove("hovered");
-    link.classList.add("hover-leave");
+  // stato base
+  link.classList.remove("hovered");
+  link.classList.add("hover-leave");
 
-    // prepara: snap ::after a 0 e nascondi ::before (così l’intro si vede)
-    link.classList.remove("intro");
-    link.classList.add("intro-reset");
-    void link.offsetWidth; // force reflow
-    link.classList.remove("intro-reset");
+  // avvia sweep (base off, after on)
+  requestAnimationFrame(() => {
+    link.classList.add("intro");
 
-    // avvia sweep
-    requestAnimationFrame(() => {
-      link.classList.add("intro");
+    setTimeout(() => {
+      // snap finale: base on, after off (istantaneo, no reverse)
+      link.classList.remove("intro");
+      link.classList.add("intro-snap");
+      void link.offsetWidth; // force reflow
+      link.classList.remove("intro-snap");
 
-      // fine sweep: snap indietro (senza reverse) e torna allo stato base
-      setTimeout(() => {
-        link.classList.remove("intro");
+      // ripristina base per hover normale
+      link.classList.remove("hovered");
+      link.classList.add("hover-leave");
 
-        link.classList.add("intro-reset"); // snap ::after a 0
-        void link.offsetWidth;
-        link.classList.remove("intro-reset");
-
-        link.classList.remove("hovered");
-        link.classList.add("hover-leave");
-        link.dataset.introPlaying = "0";
-      }, 320);
-    });
-  }
+      link.dataset.introPlaying = "0";
+    }, 320);
+  });
+}
 
   // Trigger quando entra in viewport
   const io = new IntersectionObserver((entries) => {
