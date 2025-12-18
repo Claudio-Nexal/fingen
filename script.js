@@ -1,4 +1,4 @@
-//1.7.1
+//1.7.2
 
 
 
@@ -197,49 +197,56 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 //Fix dropdown menu
+
+// Dropdown: testo naviga, chevron apre (mobile-safe)
 document.addEventListener("DOMContentLoaded", () => {
+  const isModifiedClick = (e, a) =>
+    e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a?.target === "_blank";
+
   document.querySelectorAll(".w-dropdown-toggle").forEach((toggle) => {
-    const isModifiedClick = (e, a) =>
-      e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a?.target === "_blank";
+    const link = toggle.querySelector("a.nav-link-navbar[href]");
+    if (!link) return;
 
-    // 1) Webflow può aprire il dropdown su pointerdown/mousedown: fermalo se stai cliccando il testo-link
-    const stopOpenIfText = (e) => {
-      const a = e.target.closest("a.nav-link-navbar");
-      if (!a) return; // non è il testo -> lascia che Webflow gestisca (freccia apre)
-      if (isModifiedClick(e, a)) return; // lascia comportamento browser (nuova tab ecc.)
+    // evita doppie init
+    if (link.__ddLinkFixed) return;
+    link.__ddLinkFixed = true;
 
-      e.preventDefault();
+    // 1) Se tocchi/clicchi il testo-link: NON far arrivare l'evento al toggle (che altrimenti apre)
+    const stopToggleFromLink = (e) => {
+      // se è un modified click, lasciamo tutto nativo (nuova tab ecc.)
+      if (isModifiedClick(e, link)) return;
+
       e.stopPropagation();
       e.stopImmediatePropagation();
+      // IMPORTANTISSIMO: niente preventDefault qui, altrimenti su mobile può non generare click/navigazione
     };
 
-    toggle.addEventListener("pointerdown", stopOpenIfText, true);
-    toggle.addEventListener("mousedown", stopOpenIfText, true);
-    toggle.addEventListener("touchstart", stopOpenIfText, { capture: true, passive: false });
+    // blocca apertura dropdown già da "down"
+    link.addEventListener("pointerdown", stopToggleFromLink, true);
+    link.addEventListener("mousedown", stopToggleFromLink, true);
+    link.addEventListener("touchstart", stopToggleFromLink, { capture: true, passive: true });
 
-    // 2) Sul click del testo: naviga (ed evita l’apertura)
-    toggle.addEventListener(
+    // blocca anche sul click (per sicurezza)
+    link.addEventListener(
       "click",
       (e) => {
-        const a = e.target.closest("a.nav-link-navbar");
-        if (!a) return;
-
-        // per cmd/ctrl click ecc. blocca solo Webflow, lascia al browser l'azione default
-        if (isModifiedClick(e, a)) {
+        // modified click: lascia default browser ma evita che il toggle apra
+        if (isModifiedClick(e, link)) {
           e.stopPropagation();
           e.stopImmediatePropagation();
           return;
         }
 
-        e.preventDefault();
+        // click normale: lascia navigazione default, evita solo l'apertura del dropdown
         e.stopPropagation();
         e.stopImmediatePropagation();
-        window.location.assign(a.href);
+        // niente preventDefault
       },
       true
     );
   });
 });
+
 
 
 
