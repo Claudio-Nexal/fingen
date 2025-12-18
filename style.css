@@ -1,4 +1,4 @@
-/* 1.3.4 */
+/* 1.3.5 */
 
 html, body{
   /*overflow: hidden;*/
@@ -151,17 +151,24 @@ html, body{
   opacity: 0;
   transform: translateY(-8px);
   pointer-events: none;
-  display: block; /* non forzare flex qui */
+
+  /* FIX: se Webflow/Designer la mette flex per un frame, resta comunque in colonna */
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch;
+
   will-change: height, opacity, transform;
 }
 
-.w-dropdown.is-open .w-dropdown-list{
+/* apri: abilita click (nota: Webflow usa spesso w--open, non solo is-open) */
+.w-dropdown.is-open .w-dropdown-list,
+.w-dropdown.w--open .w-dropdown-list{
   pointer-events: auto;
 }
 
-/* voci in colonna (ok anche con display:block) */
+/* voci in colonna */
 .w-dropdown-link{
-  display: block;
+  display: block !important;
   width: 100%;
 }
 
