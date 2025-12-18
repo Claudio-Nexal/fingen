@@ -1,4 +1,85 @@
-//1.8.7
+//1.8.8
+
+
+
+//animazioni cta + freccia
+
+// Intro una sola volta (funzionante come il primo) + hover invariato
+document.addEventListener("DOMContentLoaded", () => {
+  const links = document.querySelectorAll(".text-link");
+  if (!links.length) return;
+
+  function playIntroOnce(link) {
+    if (link.dataset.introPlayed === "1") return;
+    link.dataset.introPlayed = "1";
+    link.dataset.introPlaying = "1";
+
+    // stato base
+    link.classList.remove("hovered");
+    link.classList.add("hover-leave");
+
+    // prepara: snap ::after a 0 e nascondi ::before (così l’intro si vede)
+    link.classList.remove("intro");
+    link.classList.add("intro-reset");
+    void link.offsetWidth; // force reflow
+    link.classList.remove("intro-reset");
+
+    // avvia sweep
+    requestAnimationFrame(() => {
+      link.classList.add("intro");
+
+      // fine sweep: snap indietro (senza reverse) e torna allo stato base
+      setTimeout(() => {
+        link.classList.remove("intro");
+
+        link.classList.add("intro-reset"); // snap ::after a 0
+        void link.offsetWidth;
+        link.classList.remove("intro-reset");
+
+        link.classList.remove("hovered");
+        link.classList.add("hover-leave");
+        link.dataset.introPlaying = "0";
+      }, 320);
+    });
+  }
+
+  // Trigger quando entra in viewport
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      playIntroOnce(entry.target);
+      io.unobserve(entry.target);
+    });
+  }, { threshold: 0.35 });
+
+  links.forEach((link) => io.observe(link));
+
+  // Hover: identico a prima (ma ignorato durante intro)
+  links.forEach((link) => {
+    link.addEventListener("mouseenter", () => {
+      if (link.dataset.introPlaying === "1") return;
+      link.classList.remove("hover-leave");
+      link.classList.add("hovered");
+    });
+
+    link.addEventListener("mouseleave", () => {
+      if (link.dataset.introPlaying === "1") return;
+      link.classList.remove("hovered");
+      link.classList.add("hover-leave");
+    });
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -456,74 +537,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-//animazioni cta + freccia
 
-// CTA: intro una sola volta con GSAP ScrollTrigger + hover come prima
-document.addEventListener("DOMContentLoaded", () => {
-  if (!window.gsap || !window.ScrollTrigger) return;
-
-  gsap.registerPlugin(ScrollTrigger);
-
-  const links = document.querySelectorAll(".text-link");
-  if (!links.length) return;
-
-  function playIntroOnce(link) {
-    if (link.dataset.introPlayed === "1") return;
-    link.dataset.introPlayed = "1";
-    link.dataset.introPlaying = "1";
-
-    const hadHovered = link.classList.contains("hovered");
-    const hadLeave   = link.classList.contains("hover-leave");
-
-    // durante intro: niente classi hover
-    link.classList.remove("hovered", "hover-leave");
-
-    // reset istantaneo ::after a 0 (senza reverse)
-    link.classList.add("intro-reset");
-    void link.offsetWidth; // force reflow
-
-    // anima sweep L->R (solo ::after), poi reset e ripristina base
-    link.classList.remove("intro-reset");
-    link.classList.add("intro");
-
-    setTimeout(() => {
-      link.classList.remove("intro");
-      link.classList.add("intro-reset");   // snap ::after a 0
-      void link.offsetWidth;
-      link.classList.remove("intro-reset");
-
-      link.classList.toggle("hovered", hadHovered);
-      link.classList.toggle("hover-leave", hadLeave || !hadHovered);
-
-      link.dataset.introPlaying = "0";
-    }, 320);
-  }
-
-  // Trigger quando è davvero “in vista”
-  links.forEach((link) => {
-    ScrollTrigger.create({
-      trigger: link,
-      start: "top 75%",
-      once: true,
-      onEnter: () => playIntroOnce(link),
-    });
-  });
-
-  // Hover: identico a prima (ma ignorato durante intro)
-  links.forEach((link) => {
-    link.addEventListener("mouseenter", () => {
-      if (link.dataset.introPlaying === "1") return;
-      link.classList.remove("hover-leave");
-      link.classList.add("hovered");
-    });
-
-    link.addEventListener("mouseleave", () => {
-      if (link.dataset.introPlaying === "1") return;
-      link.classList.remove("hovered");
-      link.classList.add("hover-leave");
-    });
-  });
-});
 
 
 
