@@ -1,4 +1,4 @@
-//1.8.3
+//1.8.4
 
 
 
@@ -462,39 +462,51 @@ document.addEventListener("DOMContentLoaded", () => {
   const links = document.querySelectorAll(".text-link");
   if (!links.length) return;
 
-  // ---- INTRO: una sola volta quando entra in viewport ----
   function playIntroOnce(link) {
     if (link.dataset.introPlayed === "1") return;
     link.dataset.introPlayed = "1";
 
-    // avvia sweep
-    requestAnimationFrame(() => {
-      link.classList.add("intro");
+    // salva stato hover attuale (di solito hover-leave)
+    const hadHovered = link.classList.contains("hovered");
+    const hadLeave   = link.classList.contains("hover-leave");
 
-      // finita la sweep (0.3s) -> reset istantaneo di ::after e rimuovi override
-      setTimeout(() => {
-        link.classList.add("intro-reset");   // snap ::after a 0
-        link.classList.remove("intro");
+    // durante intro: niente classi hover
+    link.classList.remove("hovered", "hover-leave");
 
-        // togli reset al frame successivo (così non “rompe” l’hover dopo)
-        requestAnimationFrame(() => {
-          link.classList.remove("intro-reset");
-        });
-      }, 320);
-    });
+    // 1) reset istantaneo della linea hover (::after) a 0
+    link.classList.add("intro-reset");
+    // forza reflow per “applicare” davvero lo stato prima di animare
+    void link.offsetWidth;
+
+    // 2) avvia animazione (solo sweep L->R)
+    link.classList.remove("intro-reset");
+    link.classList.add("intro");
+
+    // 3) fine: snap back e ripristina stato base
+    setTimeout(() => {
+      link.classList.remove("intro");
+      link.classList.add("intro-reset");   // snap ::after a 0
+      void link.offsetWidth;
+      link.classList.remove("intro-reset");
+
+      // ripristina stato hover pre-esistente (base)
+      link.classList.toggle("hovered", hadHovered);
+      link.classList.toggle("hover-leave", hadLeave || !hadHovered);
+    }, 320);
   }
 
+  // Trigger quando entra in viewport (soglia bassa = più affidabile)
   const io = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (!entry.isIntersecting) return;
       playIntroOnce(entry.target);
       io.unobserve(entry.target);
     });
-  }, { threshold: 0.35 });
+  }, { threshold: 0.1, rootMargin: "0px 0px -10% 0px" });
 
   links.forEach((l) => io.observe(l));
 
-  // ---- HOVER: identico a prima ----
+  // Hover: identico al tuo
   links.forEach((link) => {
     link.addEventListener("mouseenter", () => {
       link.classList.remove("hover-leave");
