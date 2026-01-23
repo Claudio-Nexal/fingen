@@ -1,4 +1,4 @@
-//1.8.10
+//1.9.1
 
 
 
@@ -874,7 +874,7 @@ window.addEventListener("load", () => {
       // anima verso lo stato finale
       const tween = gsap.to(lineInners, {
         yPercent: 0,
-        duration: 1.2,
+        duration: .8,
         ease: "power2.inOut",
         stagger: 0.12,
         paused: true,
