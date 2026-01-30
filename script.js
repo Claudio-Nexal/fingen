@@ -1,4 +1,5 @@
-//1.9.2
+//1.10.1
+//rimossa animazione footer 
 
 
 
@@ -548,7 +549,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 // animazione footer desktop
-document.addEventListener("DOMContentLoaded", () => {
+/* document.addEventListener("DOMContentLoaded", () => {
   if (!window.gsap || !window.ScrollTrigger) return;
   gsap.registerPlugin(ScrollTrigger);
 
@@ -568,7 +569,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   );
-});
+}); */
 
 
 
