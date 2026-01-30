@@ -1,4 +1,5 @@
-/* 1.3.12 */
+/* 1.4.1 */
+/* rimossa animazione footer */
 
 html, body{
   /*overflow: hidden;*/
@@ -339,14 +340,7 @@ a.link-menu-footer:not(:hover)::after{
 
 
 .footer-wrapper {
-  overflow: clip; /* oppure hidden */
   position: relative;
-}
-
-.footer {
-  opacity: 0;
-  clip-path: inset(100% 0% 0% 0%); /* totalmente nascosto dall'alto */
-  will-change: opacity, clip-path;
 }
 
 
