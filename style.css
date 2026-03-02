@@ -6,13 +6,6 @@ html, body{
 }
 
 
-
-.title-animation.title-simple > * { 
-  backface-visibility: hidden;
-  transform: translateZ(0);
-}
-
-
 /* MENU */
 /* =========================
    NAV (link top-level)
@@ -590,7 +583,6 @@ a.link-menu-footer:not(:hover)::after{
    
   /* wrapper di ogni riga: maschera sempre attiva, ma non taglia il font */
   .title-line{
-    display: block;
     overflow: hidden;
   
     /* extra area sopra/sotto per evitare clipping */
