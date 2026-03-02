@@ -1,5 +1,6 @@
-//1.10.1
-//rimossa animazione footer 
+//1.11.1
+console.log('1.11.1');
+//try fix title animation
 
 
 
@@ -770,17 +771,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-//animazioni titoli
+// animazioni titoli (split in righe + reveal on scroll)
+// Desktop-only (<992px: niente animazione)
 window.addEventListener("load", () => {
-
-  // Desktop-only: niente animazione sotto 992px (Webflow tablet/mobile)
   if (window.matchMedia("(max-width: 991px)").matches) return;
-  
+
   (() => {
     const WRAP_SELECTOR = ".title-animation";
     const INNER_TEXT_TAGS = "h1,h2,h3,h4,h5,h6,p";
     const TOP_TOLERANCE = 2;
     const RESIZE_DEBOUNCE = 150;
+
+    // opzionale: bilanciamento righe (supportato in molti browser moderni)
+    const APPLY_BALANCE = true;
 
     function initTitleLineAnim() {
       if (!window.gsap || !window.ScrollTrigger) return;
@@ -789,6 +792,12 @@ window.addEventListener("load", () => {
       document.querySelectorAll(WRAP_SELECTOR).forEach((wrap) => {
         const target = pickTarget(wrap);
         if (!target) return;
+
+        // salva una volta sola il testo originale
+        cacheRawText(target);
+
+        // applica balance se vuoi (aiuta a prevenire "and" appeso)
+        if (APPLY_BALANCE) applyBalance(wrap, target);
 
         buildOrRebuild(wrap, target);
         ensureObservers(wrap, target);
@@ -804,26 +813,43 @@ window.addEventListener("load", () => {
       return wrap;
     }
 
+    function cacheRawText(target) {
+      if (target.dataset.titleRaw) return;
+      const raw = (target.innerText || "")
+        .replace(/\u00A0/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (!raw) return;
+      target.dataset.titleRaw = raw;
+    }
+
+    function applyBalance(wrap, target) {
+      // set su wrap e target per coprire casi diversi
+      try {
+        wrap.style.textWrap = "balance";
+      } catch (_) {}
+      try {
+        target.style.textWrap = "balance";
+      } catch (_) {}
+    }
+
     function getLayoutWidth(el) {
       // offsetWidth NON è influenzato da transform/scale
       return el.offsetWidth || el.clientWidth || 0;
     }
 
     function buildOrRebuild(wrap, target) {
-      if (!target.dataset.titleRaw) {
-        const raw = (target.innerText || "")
-          .replace(/\u00A0/g, " ")
-          .replace(/\s+/g, " ")
-          .trim();
-        if (!raw) return;
-        target.dataset.titleRaw = raw;
-      }
+      const raw = target.dataset.titleRaw;
+      if (!raw) return;
 
       const w = getLayoutWidth(target);
 
-      // evita rebuild inutili (su transform del menu non cambia)
-      if (target.dataset.linesSplit === "1" && Number(target.dataset.splitWidth || 0) === w) {
-        // se già animato, assicurati che resti “fisso”
+      // evita rebuild inutili
+      if (
+        target.dataset.linesSplit === "1" &&
+        Number(target.dataset.splitWidth || 0) === w
+      ) {
+        // se già completato, assicurati che resti nello stato finale
         if (target.dataset.titleAnimDone === "1") {
           const doneLines = target.querySelectorAll(".title-line-inner");
           if (doneLines.length) gsap.set(doneLines, { yPercent: 0, clearProps: "transform" });
@@ -837,11 +863,14 @@ window.addEventListener("load", () => {
 
       // rebuild markup
       target.innerHTML = "";
+
       const textEl = document.createElement("span");
       textEl.className = "title-text";
       target.appendChild(textEl);
 
-      const lines = splitLinesByRange(textEl, target.dataset.titleRaw);
+      let lines = splitLinesByRange(textEl, raw);
+      lines = fixBadBreaks(lines);
+
       if (!lines || !lines.length) return;
 
       textEl.textContent = "";
@@ -862,50 +891,51 @@ window.addEventListener("load", () => {
 
       const lineInners = target.querySelectorAll(".title-line-inner");
       if (!lineInners.length) return;
-      
+
       // se già completato: stato finale e stop
       if (target.dataset.titleAnimDone === "1") {
         gsap.set(lineInners, { yPercent: 0, clearProps: "transform" });
         return;
       }
-      
-      // ✅ stato iniziale “nascosto” (così non li vedi già fissati)
+
+      // stato iniziale nascosto
       gsap.set(lineInners, { yPercent: 130 });
-      
-      // anima verso lo stato finale
+
       const tween = gsap.to(lineInners, {
         yPercent: 0,
-        duration: .6,
+        duration: 0.6,
         ease: "power2.inOut",
         stagger: 0.12,
         paused: true,
-        overwrite: "auto"
+        overwrite: "auto",
       });
-      
+
       const st = ScrollTrigger.create({
         trigger: wrap,
         start: "top 80%",
         once: true,
-        onEnter: () => tween.play()
+        onEnter: () => tween.play(),
       });
-      
+
       tween.eventCallback("onComplete", () => {
         target.dataset.titleAnimDone = "1";
         st.kill();
         gsap.set(lineInners, { yPercent: 0, clearProps: "transform" });
       });
-      
+
       target._titleTween = tween;
       target._titleST = st;
     }
 
     function splitLinesByRange(containerEl, raw) {
       containerEl.textContent = raw;
+
       const node = containerEl.firstChild;
       if (!node || node.nodeType !== Node.TEXT_NODE) return [raw];
 
       const range = document.createRange();
 
+      // posizioni di inizio parola
       const wordStarts = [];
       const re = /\S+/g;
       let m;
@@ -930,7 +960,7 @@ window.addEventListener("load", () => {
       const lines = [];
       for (let i = 0; i < lineStarts.length; i++) {
         const start = lineStarts[i];
-        const end = (i + 1 < lineStarts.length) ? lineStarts[i + 1] : raw.length;
+        const end = i + 1 < lineStarts.length ? lineStarts[i + 1] : raw.length;
         const chunk = raw.slice(start, end).trimEnd();
         if (chunk) lines.push(chunk);
       }
@@ -942,6 +972,7 @@ window.addEventListener("load", () => {
       const len = textNode.length;
       if (index < 0 || index >= len) return null;
 
+      // salta whitespace
       let i = index;
       while (i < len && /\s/.test(textNode.data[i])) i++;
       if (i >= len) return null;
@@ -952,6 +983,43 @@ window.addEventListener("load", () => {
       const rect = range.getBoundingClientRect();
       if (!rect || !isFinite(rect.top) || rect.height === 0) return null;
       return rect.top;
+    }
+
+    function fixBadBreaks(lines) {
+      if (!lines || lines.length < 2) return lines;
+
+      const badEnd = new Set(["and", "or", "the", "a", "an", "of", "to", "in", "at", "for", "with"]);
+      const isShort = (w) => (w || "").length <= 3;
+
+      // 1) evita "and/or/..." (o parole corte) a fine riga (soprattutto riga 1)
+      for (let i = 0; i < lines.length - 1; i++) {
+        const words = lines[i].trim().split(/\s+/);
+        if (!words.length) continue;
+
+        const last = (words[words.length - 1] || "").toLowerCase();
+        if (badEnd.has(last) || isShort(last)) {
+          const cut = lines[i].lastIndexOf(" ");
+          if (cut > 0) {
+            const moved = lines[i].slice(cut + 1);
+            lines[i] = lines[i].slice(0, cut).trimEnd();
+            lines[i + 1] = (moved + " " + lines[i + 1]).trim();
+          }
+        }
+      }
+
+      // 2) evita ultima riga con singola parola (widow)
+      const lastWords = lines[lines.length - 1].trim().split(/\s+/);
+      if (lastWords.length === 1 && lines.length >= 2) {
+        const prevWords = lines[lines.length - 2].trim().split(/\s+/);
+        if (prevWords.length > 1) {
+          const moved = prevWords.pop();
+          lines[lines.length - 2] = prevWords.join(" ");
+          lines[lines.length - 1] = (moved + " " + lines[lines.length - 1]).trim();
+        }
+      }
+
+      // pulizia righe vuote
+      return lines.map((l) => (l || "").trim()).filter(Boolean);
     }
 
     function ensureObservers(wrap, target) {
@@ -975,10 +1043,11 @@ window.addEventListener("load", () => {
       }
     }
 
-    initTitleLineAnim();
-
+    // ✅ più robusto: splitta solo quando i font sono pronti (se supportato)
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(initTitleLineAnim);
+    } else {
+      initTitleLineAnim();
     }
   })();
 });
