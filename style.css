@@ -1,11 +1,13 @@
-/* 1.4.1 */
-/* rimossa animazione footer */
+/* 1.4.2 */
+/* try fix title-animation */
 
 html, body{
   /*overflow: hidden;*/
 }
 
-
+.title-animation, .title-animation * {
+  text-wrap: balance;
+}
 
 
 /* MENU */
