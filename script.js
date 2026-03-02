@@ -1,5 +1,5 @@
 
-console.log('1.11.5');
+console.log('1.11.6');
 //try fix title animation
 
 
@@ -873,11 +873,18 @@ window.addEventListener("load", () => {
       lines.forEach((lineText) => {
         const line = document.createElement("span");
         line.className = "title-line";
-
+      
+        // 🔒 forza comportamento da "maschera" (evita height strani)
+        line.style.display = "block";
+        line.style.overflow = "hidden";
+      
         const inner = document.createElement("span");
         inner.className = "title-line-inner";
         inner.textContent = lineText;
-
+      
+        // coerenza metrica tra browser/font
+        inner.style.display = "block";
+      
         line.appendChild(inner);
         textEl.appendChild(line);
       });
