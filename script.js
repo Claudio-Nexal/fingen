@@ -1,5 +1,5 @@
 //1.11.2
-console.log('1.11.2');
+console.log('1.11.3');
 //try fix title animation
 
 
@@ -785,6 +785,7 @@ window.addEventListener("load", () => {
       gsap.registerPlugin(ScrollTrigger);
 
       document.querySelectorAll(WRAP_SELECTOR).forEach((wrap) => {
+        if (wrap.classList.contains("title-simple")) return;
         const target = pickTarget(wrap);
         if (!target) return;
 
@@ -1048,3 +1049,50 @@ window.addEventListener("load", () => {
 });
 
 
+
+
+
+
+
+
+
+
+// animazione semplice per testi "storti" (NO split righe)
+window.addEventListener("load", () => {
+  if (window.matchMedia("(max-width: 991px)").matches) return;
+  if (!window.gsap || !window.ScrollTrigger) return;
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const WRAP_SELECTOR = ".title-animation.title-simple";
+  const INNER_TEXT_TAGS = "h1,h2,h3,h4,h5,h6,p";
+
+  document.querySelectorAll(WRAP_SELECTOR).forEach((wrap) => {
+    const target = wrap.matches(INNER_TEXT_TAGS) ? wrap : (wrap.querySelector(INNER_TEXT_TAGS) || wrap);
+
+    // stato iniziale (maschera dal basso + leggera traslazione)
+    gsap.set(target, {
+      clipPath: "inset(0 0 100% 0)",
+      y: 18,
+      willChange: "clip-path, transform"
+    });
+
+    const tween = gsap.to(target, {
+      clipPath: "inset(0 0 0% 0)",
+      y: 0,
+      duration: 0.7,
+      ease: "power2.inOut",
+      paused: true,
+      overwrite: "auto"
+    });
+
+    ScrollTrigger.create({
+      trigger: wrap,
+      start: "top 80%",
+      once: true,
+      onEnter: () => tween.play()
+    });
+  });
+
+  ScrollTrigger.refresh();
+});
