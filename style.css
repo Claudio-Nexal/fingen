@@ -1,4 +1,4 @@
-/* 1.5.1 */
+/* 1.5.2 */
 /* try fix title-animation */
 
 html, body{
@@ -6,23 +6,10 @@ html, body{
 }
 
 
-/* Applica SOLO dove metti .title-fix */
-.title-fix .title-text{
-  display:block;
-}
 
-.title-fix .title-line{
-  display:block;
-  overflow:hidden;
-}
-
-.title-fix .title-line-inner{
-  display:block;              /* evita baseline “storta” */
-  vertical-align:top;
-  line-height:inherit;
-  will-change:transform;
-  transform:translate3d(0,0,0); /* stabilizza subpixel durante yPercent */
-  backface-visibility:hidden;
+.title-animation.title-simple > * { 
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 
