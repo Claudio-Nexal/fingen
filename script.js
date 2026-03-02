@@ -1,5 +1,5 @@
-//1.11.2
-console.log('1.11.4');
+
+console.log('1.11.5');
 //try fix title animation
 
 
@@ -864,7 +864,7 @@ window.addEventListener("load", () => {
       textEl.className = "title-text";
       target.appendChild(textEl);
 
-      let lines = splitLinesByOffset(textEl, raw);
+      let lines = splitLinesByRange(textEl, raw);
       lines = fixBadBreaks(lines);
 
       if (!lines || !lines.length) return;
@@ -923,49 +923,44 @@ window.addEventListener("load", () => {
       target._titleST = st;
     }
 
-    function splitLinesByOffset(containerEl, raw) {
-      // reset
-      containerEl.textContent = "";
-    
-      // parole + preserva spazi singoli (raw è già normalizzato)
-      const words = raw.split(" ");
-      if (!words.length) return [raw];
-    
-      // crea spans parola (con spazio dopo, così il wrapping è reale)
-      const spans = words.map((w, i) => {
-        const s = document.createElement("span");
-        s.className = "title-word";
-        s.textContent = w + (i < words.length - 1 ? " " : "");
-        containerEl.appendChild(s);
-        return s;
-      });
-    
-      // raggruppa per riga usando offsetTop (stabile, non dipende dal viewport)
-      const lines = [];
-      let currentTop = null;
-      let buffer = "";
-    
-      spans.forEach((s) => {
-        const top = s.offsetTop;
-    
-        if (currentTop === null) currentTop = top;
-    
-        if (top !== currentTop) {
-          const line = buffer.trimEnd();
-          if (line) lines.push(line);
-          buffer = "";
+    function splitLinesByRange(containerEl, raw) {
+      containerEl.textContent = raw;
+
+      const node = containerEl.firstChild;
+      if (!node || node.nodeType !== Node.TEXT_NODE) return [raw];
+
+      const range = document.createRange();
+
+      // posizioni di inizio parola
+      const wordStarts = [];
+      const re = /\S+/g;
+      let m;
+      while ((m = re.exec(raw))) wordStarts.push(m.index);
+      if (!wordStarts.length) return [raw];
+
+      const lineStarts = [0];
+      let currentTop = getCharTop(range, node, wordStarts[0]);
+      if (currentTop == null) return [raw];
+
+      for (let i = 1; i < wordStarts.length; i++) {
+        const idx = wordStarts[i];
+        const top = getCharTop(range, node, idx);
+        if (top == null) continue;
+
+        if (Math.abs(top - currentTop) > TOP_TOLERANCE) {
+          lineStarts.push(idx);
           currentTop = top;
         }
-    
-        buffer += s.textContent;
-      });
-    
-      const last = buffer.trimEnd();
-      if (last) lines.push(last);
-    
-      // cleanup: torna testo normale (il caller poi ricrea .title-line/.title-line-inner)
-      containerEl.textContent = raw;
-    
+      }
+
+      const lines = [];
+      for (let i = 0; i < lineStarts.length; i++) {
+        const start = lineStarts[i];
+        const end = i + 1 < lineStarts.length ? lineStarts[i + 1] : raw.length;
+        const chunk = raw.slice(start, end).trimEnd();
+        if (chunk) lines.push(chunk);
+      }
+
       return lines.length ? lines : [raw];
     }
 
@@ -1052,15 +1047,6 @@ window.addEventListener("load", () => {
     }
   })();
 });
-
-
-
-
-
-
-
-
-
 
 // animazione semplice per testi "storti" (NO split righe)
 window.addEventListener("load", () => {
