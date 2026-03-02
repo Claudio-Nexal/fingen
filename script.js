@@ -1,5 +1,5 @@
-//1.11.1
-console.log('1.11.1');
+//1.11.2
+console.log('1.11.2');
 //try fix title animation
 
 
@@ -757,11 +757,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initMenu);
   else initMenu();
 })();
-
-
-
-
-
 
 
 
