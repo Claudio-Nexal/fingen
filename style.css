@@ -1,5 +1,5 @@
-/* 1.5.2 */
-/* try fix title-animation */
+/* 1.6.1 */
+/* modifiche menu */
 
 html, body{
   /*overflow: hidden;*/
@@ -556,6 +556,25 @@ a.link-menu-footer:not(:hover)::after{
 }
 
 .menu-link a, .menu-link .w-dropdown {
+  transform: translateY(120%);
+  opacity: 0.25;
+}
+
+
+
+
+.menu-link-row {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+}
+
+.link-plain {
+  display: inline-block;
+  will-change: transform;
+  transition: color 0.5s;
+  text-align: center;
+}
+
+.link-plain {
   transform: translateY(120%);
   opacity: 0.25;
 }
