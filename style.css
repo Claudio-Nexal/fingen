@@ -13,15 +13,18 @@ html, body{
    - hover: animazione come già fai
    ========================= */
 
-/* underline (base + hover) per nav-link-navbar */
-.nav-link-navbar{
+/* underline (base + hover) per nav-link-navbar + link-plain */
+.nav-link-navbar,
+.link-plain{
   position: relative;
   display: inline-block;
   padding-bottom: 2px;
 }
 
 .nav-link-navbar::before,
-.nav-link-navbar::after{
+.nav-link-navbar::after,
+.link-plain::before,
+.link-plain::after{
   content:'';
   position:absolute;
   left:0;
@@ -34,53 +37,62 @@ html, body{
 }
 
 /* linea base (serve per w--current) */
-.nav-link-navbar::before{
+.nav-link-navbar::before,
+.link-plain::before{
   transform-origin: left center;
   transition: transform .3s ease-out .12s;
 }
 
 /* linea hover (entra da sinistra) */
-.nav-link-navbar::after{
+.nav-link-navbar::after,
+.link-plain::after{
   transform-origin: left center;
   transition: transform .3s ease-out;
 }
 
 /* hover: base si chiude verso destra, hover entra */
 .nav-link-navbar:hover::before,
-.nav-link-navbar:focus-visible::before{
+.nav-link-navbar:focus-visible::before,
+.link-plain:hover::before,
+.link-plain:focus-visible::before{
   transform: scaleX(0);
   transform-origin: right center;
   transition-delay: 0s;
 }
 
 .nav-link-navbar:hover::after,
-.nav-link-navbar:focus-visible::after{
+.nav-link-navbar:focus-visible::after,
+.link-plain:hover::after,
+.link-plain:focus-visible::after{
   transform: scaleX(1);
   transition-delay: .12s;
 }
 
 /* mouseleave: hover si richiude verso destra */
-.nav-link-navbar:not(:hover)::after{
+.nav-link-navbar:not(:hover)::after,
+.link-plain:not(:hover)::after{
   transform: scaleX(0);
   transform-origin: right center;
 }
 
 /* link attivo: underline visibile di default (linea base) */
-.nav-link-navbar.w--current::before{
+.nav-link-navbar.w--current::before,
+.link-plain.w--current::before{
   transform: scaleX(1);
   transition-delay: 0s;
 }
 
 /* sull'attivo, la linea hover resta nascosta finché non hover */
-.nav-link-navbar.w--current::after{
+.nav-link-navbar.w--current::after,
+.link-plain.w--current::after{
   transform: scaleX(0);
 }
 
 
 /* =========================
    DROPDOWN (link dentro menu)
-   - underline SOLO in hover (sul div .text-block-36)
-   - attivo: SOLO bold + colore (nessuna underline di base)
+   - underline SOLO hover (sul div .text-block-36)
+   - attivo: SOLO bold + colore
    ========================= */
 
 .dropdown-link.w-inline-block .text-block-36{
@@ -89,7 +101,6 @@ html, body{
   padding-bottom: 2px;
 }
 
-/* pseudo underline per dropdown text */
 .dropdown-link.w-inline-block .text-block-36::before,
 .dropdown-link.w-inline-block .text-block-36::after{
   content:'';
@@ -103,44 +114,35 @@ html, body{
   pointer-events:none;
 }
 
-/* per dropdown usiamo solo la linea hover (after) */
 .dropdown-link.w-inline-block .text-block-36::after{
   transform-origin: left center;
   transition: transform .3s ease-out;
 }
 
-/* hover/focus: entra underline */
 .dropdown-link.w-inline-block:hover .text-block-36::after,
 .dropdown-link.w-inline-block:focus-visible .text-block-36::after{
   transform: scaleX(1);
   transition-delay: .12s;
 }
 
-/* mouseleave: richiude verso destra */
 .dropdown-link.w-inline-block:not(:hover) .text-block-36::after{
   transform: scaleX(0);
   transform-origin: right center;
 }
 
-/* dropdown attivo: SOLO bold (niente underline base) */
 .dropdown-link.w-inline-block.w--current .text-block-36{
   color: #30344f;
   font-weight: 700;
 }
 
-/* forza: mai underline base/di default sul dropdown attivo */
 .dropdown-link.w-inline-block.w--current .text-block-36::before{
   transform: scaleX(0) !important;
   transition: none !important;
 }
 
-/* (facoltativo) assicurati che anche l'hover line parta nascosta sull'attivo finché non hover */
 .dropdown-link.w-inline-block.w--current .text-block-36::after{
   transform: scaleX(0);
 }
-
-
-
 
 
 /* Accordion dropdown: non lascia spazio da chiuso */
@@ -150,25 +152,19 @@ html, body{
   opacity: 0;
   transform: translateY(-8px);
   pointer-events: none;
-
-  /* FIX: se Webflow/Designer la mette flex per un frame, resta comunque in colonna */
   display: flex !important;
   flex-direction: column !important;
   align-items: stretch;
-
   will-change: height, opacity, transform;
-
   grid-column-gap: 20px;
   grid-row-gap: 20px;
 }
 
-/* apri: abilita click (nota: Webflow usa spesso w--open, non solo is-open) */
 .w-dropdown.is-open .w-dropdown-list,
 .w-dropdown.w--open .w-dropdown-list{
   pointer-events: auto;
 }
 
-/* voci in colonna */
 .w-dropdown-link{
   display: block !important;
   width: 100%;
@@ -187,11 +183,7 @@ html, body{
   display: inline;
 }
 
-
-
-
 /* Style del menu e dell'header */
-
 .content-container {
   position: relative;
   width: 100%;
@@ -225,7 +217,7 @@ html, body{
   width: 100vw;
   height: 100svh;
   background-color: #F3F3F3;
-  z-index: 9998; /* opzionale: sotto al toggle */
+  z-index: 9998;
 }
 
 .menu-content {
@@ -263,33 +255,29 @@ html, body{
   clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
 }
 
-.menu-link a, .menu-link .w-dropdown {
+.menu-link a,
+.menu-link .w-dropdown{
   display: inline-block;
   will-change: transform;
   transition: color 0.5s;
   text-align: center;
 }
 
-.menu-link a, .menu-link .w-dropdown {
+.menu-link a,
+.menu-link .w-dropdown{
   transform: translateY(120%);
   opacity: 0.25;
 }
 
-
-
-
-.menu-link-row {
+.menu-link-row{
   clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
 }
 
-.link-plain {
-  display: inline-block;
+/* link-plain: resta per animazione entrata menu (underline ora è sopra, condiviso) */
+.link-plain{
   will-change: transform;
   transition: color 0.5s;
   text-align: center;
-}
-
-.link-plain {
   transform: translateY(120%);
   opacity: 0.25;
 }
