@@ -1,6 +1,6 @@
 
-console.log('1.11.6');
-//try fix title animation
+console.log('1.12.1');
+//modifiche menu
 
 
 
@@ -675,7 +675,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     gsap.set(menuContent, { rotation: -15, x: -100, y: -100, scale: 1.5, opacity: 0.25 });
-    gsap.set([".menu-link .w-dropdown", ".menu-link a"], { y: "120%", opacity: 0.25 });
+    gsap.set([".menu-link .w-dropdown", ".menu-link a", ".link-plain"], { y: "120%", opacity: 0.25 });
 
     gsap.set([pageLayer, menuContent], { willChange: "transform", transformOrigin: "50% 50%" });
 
@@ -714,7 +714,7 @@ document.addEventListener("DOMContentLoaded", () => {
       tl.to(menuContent, { rotation: 0, x: 0, y: 0, scale: 1, opacity: 1, overwrite: "auto" }, 0);
       tl.to(menuOverlay, { clipPath: "polygon(0% 0%, 100% 0%, 100% 175%, 0% 100%)" }, 0);
 
-      tl.to([".menu-link .w-dropdown", ".menu-link a"], {
+      tl.to([".menu-link .w-dropdown", ".menu-link a", ".link-plain"], {
         y: "0%",
         opacity: 1,
         duration: 1,
@@ -737,7 +737,7 @@ document.addEventListener("DOMContentLoaded", () => {
           isAnimating = false;
 
           gsap.set(menuOverlay, { pointerEvents: "none" });
-          gsap.set([".menu-link .w-dropdown", ".menu-link a"], { y: "120%", opacity: 0.25 });
+          gsap.set([".menu-link .w-dropdown", ".menu-link a", ".link-plain"], { y: "120%", opacity: 0.25 });
 
           if (brandImg) brandImg.src = defaultBrandSrc;
           unlockScroll();
