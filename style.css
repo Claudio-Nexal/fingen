@@ -190,6 +190,112 @@ html, body{
 
 
 
+/* Style del menu e dell'header */
+
+.content-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+  transform-origin: right top;
+}
+
+.menu-toggle {
+  position: relative;
+  width: 3rem;
+  height: 1.5rem;
+  cursor: pointer;
+  z-index: 9999;
+}
+
+.menu-toggle img{
+  position: absolute;
+  transform-origin: top left;
+  will-change: transform, opacity;
+}
+
+.menu-toggle .menu-close{
+  width: 40%;
+}
+
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100svh;
+  background-color: #F3F3F3;
+  z-index: 9998; /* opzionale: sotto al toggle */
+}
+
+.menu-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform-origin: left bottom;
+  will-change: opacity, transform;
+}
+
+.menu-content {
+  transform: translateX(-100px) translateY(-100px) scale(1.5) rotate(-15deg);
+  opacity: 0.25;
+}
+
+.menu-overlay {
+  clip-path: polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%);
+}
+
+.menu-toggle img.menu-close {
+  opacity: 0;
+  transform: translateX(-5px) translateY(10px) rotate(5deg);
+}
+
+.menu-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.menu-link {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+}
+
+.menu-link a, .menu-link .w-dropdown {
+  display: inline-block;
+  will-change: transform;
+  transition: color 0.5s;
+  text-align: center;
+}
+
+.menu-link a, .menu-link .w-dropdown {
+  transform: translateY(120%);
+  opacity: 0.25;
+}
+
+
+
+
+.menu-link-row {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+}
+
+.link-plain {
+  display: inline-block;
+  will-change: transform;
+  transition: color 0.5s;
+  text-align: center;
+}
+
+.link-plain {
+  transform: translateY(120%);
+  opacity: 0.25;
+}
+
+.page-layer { width: 100%; }
+
 
 
 
@@ -464,122 +570,6 @@ a.link-menu-footer:not(:hover)::after{
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-/* Style del menu e dell'header */
-
-.content-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  will-change: transform;
-  transform-origin: right top;
-}
-
-.menu-toggle {
-  position: relative;
-  width: 3rem;
-  height: 1.5rem;
-  cursor: pointer;
-  z-index: 9999;
-}
-
-.menu-toggle img{
-  position: absolute;
-  transform-origin: top left;
-  will-change: transform, opacity;
-}
-
-.menu-toggle .menu-close{
-  width: 40%;
-}
-
-.menu-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100svh;
-  background-color: #F3F3F3;
-  z-index: 9998; /* opzionale: sotto al toggle */
-}
-
-.menu-content {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transform-origin: left bottom;
-  will-change: opacity, transform;
-}
-
-.menu-content {
-  transform: translateX(-100px) translateY(-100px) scale(1.5) rotate(-15deg);
-  opacity: 0.25;
-}
-
-.menu-overlay {
-  clip-path: polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%);
-}
-
-.menu-toggle img.menu-close {
-  opacity: 0;
-  transform: translateX(-5px) translateY(10px) rotate(5deg);
-}
-
-.menu-links {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.menu-link {
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
-}
-
-.menu-link a, .menu-link .w-dropdown {
-  display: inline-block;
-  will-change: transform;
-  transition: color 0.5s;
-  text-align: center;
-}
-
-.menu-link a, .menu-link .w-dropdown {
-  transform: translateY(120%);
-  opacity: 0.25;
-}
-
-
-
-
-.menu-link-row {
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
-}
-
-.link-plain {
-  display: inline-block;
-  will-change: transform;
-  transition: color 0.5s;
-  text-align: center;
-}
-
-.link-plain {
-  transform: translateY(120%);
-  opacity: 0.25;
-}
-
-.page-layer { width: 100%; }
 
 
 
